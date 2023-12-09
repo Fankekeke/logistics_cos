@@ -64,25 +64,55 @@ public class OrderInfo implements Serializable {
      */
     private LocalDateTime payDate;
 
-    private String temp1;
+    /**
+     * 物品类型
+     */
+    private String goodsType;
 
-    private String temp2;
+    /**
+     * 物品图片
+     */
+    private String images;
 
-    private String temp3;
+    /**
+     * 物品重量
+     */
+    private BigDecimal weight;
 
-    private String temp4;
+    /**
+     * 物品高度
+     */
+    private BigDecimal height;
 
-    private String temp5;
+    /**
+     * 物品宽度
+     */
+    private BigDecimal width;
 
-    private String temp6;
+    /**
+     * 开始地址
+     */
+    private Integer startAddressId;
 
-    private String temp7;
+    /**
+     * 送货地址
+     */
+    private Integer endAddressId;
 
-    private String temp8;
+    /**
+     * 配送时间
+     */
+    private LocalDateTime deliveryDate;
 
-    private String temp9;
+    /**
+     * 物流信息
+     */
+    private String logisticsInfo;
 
-    private String temp10;
+    /**
+     * 完成时间
+     */
+    private LocalDateTime finishDate;
 
 
 }

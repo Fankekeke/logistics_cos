@@ -1,6 +1,7 @@
 package cc.mrbird.febs.cos.entity;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -33,15 +34,20 @@ public class StaffIncome implements Serializable {
      */
     private BigDecimal income;
 
-    private String temp1;
+    /**
+     * 配送费用
+     */
+    private BigDecimal deliveryPrice;
 
-    private String temp2;
+    /**
+     * 总收益
+     */
+    private BigDecimal totalPrice;
 
-    private String temp3;
-
-    private String temp4;
-
-    private String temp5;
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createDate;
 
 
 }
