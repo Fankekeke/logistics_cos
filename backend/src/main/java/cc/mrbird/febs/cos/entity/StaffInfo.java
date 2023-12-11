@@ -1,5 +1,6 @@
 package cc.mrbird.febs.cos.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.io.Serializable;
 
@@ -67,6 +68,11 @@ public class StaffInfo implements Serializable {
      * 所属账户
      */
     private Long userId;
+
+    /**
+     * 余额
+     */
+    private BigDecimal price;
 
     private Integer canteenId;
 

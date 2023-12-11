@@ -1,8 +1,10 @@
 package cc.mrbird.febs.cos.controller;
 
 
+import cc.mrbird.febs.common.exception.FebsException;
 import cc.mrbird.febs.common.utils.R;
 import cc.mrbird.febs.cos.entity.OrderInfo;
+import cc.mrbird.febs.cos.entity.WithdrawInfo;
 import cc.mrbird.febs.cos.service.IOrderInfoService;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -44,6 +46,28 @@ public class OrderInfoController {
     @PostMapping("/getPriceTotal")
     public R getPriceTotal(OrderInfo orderInfo) {
         return R.ok(orderInfoService.getPriceTotal(orderInfo));
+    }
+
+    /**
+     * 管理员审核提现申请
+     *
+     * @param withdrawInfo 提现记录
+     * @return 结果
+     */
+    @PostMapping("/auditWithdraw")
+    public R auditWithdraw(WithdrawInfo withdrawInfo) throws FebsException {
+        return R.ok(orderInfoService.auditWithdraw(withdrawInfo));
+    }
+
+    /**
+     * 根据用户ID获取优惠券
+     *
+     * @param userId 用户ID
+     * @return 结果
+     */
+    @GetMapping("/discount/{userId}")
+    public R selectDiscountByUser(@PathVariable("userId") Integer userId) {
+        return R.ok(orderInfoService.selectDiscountByUser(userId));
     }
 
     /**

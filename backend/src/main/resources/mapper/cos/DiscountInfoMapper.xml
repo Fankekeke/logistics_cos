@@ -2,4 +2,39 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cc.mrbird.febs.cos.dao.DiscountInfoMapper">
 
+    <!-- 分页获取优惠券信息 -->
+    <select id="selectDiscountPage" resultType="java.util.LinkedHashMap">
+        select
+        di.id,
+        di.code,
+        di.discount_price,
+        di.threshold,
+        di.user_id,
+        di.coupon_name,
+        di.`type`,
+        di.`status`,
+        di.create_date,
+        ui.name as userName,
+        ui.mail,
+        ui.phone,
+        ui.images
+        from
+        discount_info di
+        left join user_id ui on (ui.id = di.user_id)
+        where 1 = 1
+        <if test="discountInfo.code != null and discountInfo.code != ''">
+            AND di.code LIKE CONCAT('%',#{discountInfo.code},'%')
+        </if>
+        <if test="discountInfo.userName != null and discountInfo.userName != ''">
+            AND ui.name LIKE CONCAT('%',#{discountInfo.userName},'%')
+        </if>
+        <if test="discountInfo.type != null and discountInfo.type != ''">
+            AND di.type = #{discountInfo.type}
+        </if>
+        <if test="discountInfo.status != null and discountInfo.status != ''">
+            AND di.status = #{discountInfo.status}
+        </if>
+        order by di.create_date desc
+
+    </select>
 </mapper>

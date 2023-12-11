@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.io.Serializable;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -63,5 +64,15 @@ public class DiscountInfo implements Serializable {
      */
     private String createDate;
 
+    /**
+     * 状态（0.未使用 1.已使用）
+     */
+    private String status;
+
+    /**
+     * 用户名称
+     */
+    @TableField(exist = false)
+    private String userName;
 
 }

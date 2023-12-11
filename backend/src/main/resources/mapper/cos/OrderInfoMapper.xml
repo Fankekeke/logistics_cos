@@ -2,4 +2,45 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cc.mrbird.febs.cos.dao.OrderInfoMapper">
 
+    <!-- 分页获取订单信息 -->
+    <select id="selectOrderPage" resultType="java.util.LinkedHashMap">
+        select
+        oi.id,
+        oi.code,
+        oi.order_name,
+        oi.user_id,
+        oi.total,
+        oi.create_date,
+        oi.remark,
+        oi.status,
+        oi.statf_ids,
+        oi.pay_date,
+        oi.goods_type,
+        oi.images,
+        oi.weight,
+        oi.height,
+        oi.width,
+        oi.start_address_id,
+        oi.end_address_id,
+        oi.delivery_date,
+        oi.logistics_info,
+        oi.finish_date,
+        oi.kilometre,
+        oi.distribution_price,
+        oi.order_price,
+        oi.discount_id,
+        oi.after_order_price,
+        oi.integral,
+        ui.name as userName,
+        ui.images as userImages,
+        ui.phone
+        from
+        order_info oi
+        left join user_info ui on (ui.id = oi.user_id)
+        where 1 = 1
+        <if test="orderInfo.code != null and orderInfo.code != ''">
+            AND di.code LIKE CONCAT('%',#{orderInfo.code},'%')
+        </if>
+        order by oi.create_date desc
+    </select>
 </mapper>

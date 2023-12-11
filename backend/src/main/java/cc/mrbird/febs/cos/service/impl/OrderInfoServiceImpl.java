@@ -1,15 +1,10 @@
 package cc.mrbird.febs.cos.service.impl;
 
+import cc.mrbird.febs.common.exception.FebsException;
 import cc.mrbird.febs.common.utils.LocationUtils;
-import cc.mrbird.febs.cos.entity.AddressInfo;
-import cc.mrbird.febs.cos.entity.DiscountInfo;
-import cc.mrbird.febs.cos.entity.OrderInfo;
+import cc.mrbird.febs.cos.entity.*;
 import cc.mrbird.febs.cos.dao.OrderInfoMapper;
-import cc.mrbird.febs.cos.entity.UserInfo;
-import cc.mrbird.febs.cos.service.IAddressInfoService;
-import cc.mrbird.febs.cos.service.IDiscountInfoService;
-import cc.mrbird.febs.cos.service.IOrderInfoService;
-import cc.mrbird.febs.cos.service.IUserInfoService;
+import cc.mrbird.febs.cos.service.*;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -19,8 +14,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,6 +34,10 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     private final IAddressInfoService addressInfoService;
 
     private final IDiscountInfoService discountInfoService;
+
+    private final IWithdrawInfoService withdrawInfoService;
+
+    private final IStaffInfoService staffInfoService;
 
     /**
      * 分页获取订单信息
@@ -76,14 +77,52 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         orderInfo.setOrderPrice(NumberUtil.add(orderInfo.getOrderPrice(), orderInfo.getDistributionPrice()));
 
         // 判断是有可用优惠券
-        List<DiscountInfo> discountInfoList = discountInfoService.list(Wrappers.<DiscountInfo>lambdaQuery().eq(DiscountInfo::getUserId, userInfo.getId()));
+        List<DiscountInfo> discountInfoList = discountInfoService.list(Wrappers.<DiscountInfo>lambdaQuery().eq(DiscountInfo::getUserId, userInfo.getId()).eq(DiscountInfo::getStatus, "0"));
         if (CollectionUtil.isNotEmpty(discountInfoList)) {
-            if (discountInfoList.stream().anyMatch(e -> "2".equals(e.getType()))) {
-                orderInfo.setUseDiscount(true);
-            } else if (discountInfoList.stream().anyMatch(e -> "1".equals(e.getType()) && orderInfo.getOrderPrice().compareTo(e.getThreshold()) >= 0)) {
-                orderInfo.setUseDiscount(true);
-            }
+            boolean discountCheck = (discountInfoList.stream().anyMatch(e -> "2".equals(e.getType())) || discountInfoList.stream().anyMatch(e -> "1".equals(e.getType()) && orderInfo.getOrderPrice().compareTo(e.getThreshold()) >= 0));
+            orderInfo.setUseDiscount(discountCheck);
         }
         return orderInfo;
+    }
+
+    /**
+     * 管理员审核提现申请
+     *
+     * @param withdrawInfo 提现记录
+     * @return 结果
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean auditWithdraw(WithdrawInfo withdrawInfo) throws FebsException {
+        // 员工信息
+        StaffInfo staffInfo = staffInfoService.getById(withdrawInfo.getStaffId());
+
+        if (withdrawInfo.getWithdrawPrice().compareTo(staffInfo.getPrice()) > 0) {
+            throw new FebsException("员工余额不足");
+        }
+        // 更新员工余额
+        if ("1".equals(withdrawInfo.getStatus())) {
+            BigDecimal staffPrice = NumberUtil.sub(staffInfo.getPrice(), withdrawInfo.getWithdrawPrice());
+            staffInfo.setPrice(staffPrice);
+            staffInfoService.updateById(staffInfo);
+        }
+        return withdrawInfoService.updateById(withdrawInfo);
+    }
+
+    /**
+     * 根据用户ID获取优惠券
+     *
+     * @param userId 用户ID
+     * @return 结果
+     */
+    @Override
+    public List<DiscountInfo> selectDiscountByUser(Integer userId) {
+        // 用户信息
+        UserInfo userInfo = userInfoService.getOne(Wrappers.<UserInfo>lambdaQuery().eq(UserInfo::getUserId, userId));
+        if (userInfo == null) {
+            return Collections.emptyList();
+        }
+
+        return discountInfoService.list(Wrappers.<DiscountInfo>lambdaQuery().eq(DiscountInfo::getUserId, userInfo.getId()).eq(DiscountInfo::getStatus, "0"));
     }
 }

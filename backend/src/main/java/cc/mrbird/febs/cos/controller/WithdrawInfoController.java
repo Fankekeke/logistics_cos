@@ -2,9 +2,12 @@ package cc.mrbird.febs.cos.controller;
 
 
 import cc.mrbird.febs.common.utils.R;
+import cc.mrbird.febs.cos.entity.StaffInfo;
 import cc.mrbird.febs.cos.entity.WithdrawInfo;
+import cc.mrbird.febs.cos.service.IStaffInfoService;
 import cc.mrbird.febs.cos.service.IWithdrawInfoService;
 import cn.hutool.core.date.DateUtil;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,8 @@ import java.util.List;
 public class WithdrawInfoController {
 
     private final IWithdrawInfoService withdrawInfoService;
+
+    private final IStaffInfoService staffInfoService;
 
     /**
      * 分页获取提现记录信息
@@ -64,6 +69,11 @@ public class WithdrawInfoController {
      */
     @PostMapping
     public R save(WithdrawInfo withdrawInfo) {
+        withdrawInfo.setCode("WD-" + System.currentTimeMillis());
+        StaffInfo staffInfo = staffInfoService.getOne(Wrappers.<StaffInfo>lambdaQuery().eq(StaffInfo::getUserId, withdrawInfo.getStaffId()));
+        if (staffInfo != null) {
+            withdrawInfo.setStaffId(staffInfo.getId());
+        }
         withdrawInfo.setCreateDate(DateUtil.formatDateTime(new Date()));
         return R.ok(withdrawInfoService.save(withdrawInfo));
     }

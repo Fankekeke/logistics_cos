@@ -1,12 +1,16 @@
 package cc.mrbird.febs.cos.service;
 
+import cc.mrbird.febs.common.exception.FebsException;
+import cc.mrbird.febs.cos.entity.DiscountInfo;
 import cc.mrbird.febs.cos.entity.OrderInfo;
+import cc.mrbird.febs.cos.entity.WithdrawInfo;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * @author FanK
@@ -29,4 +33,20 @@ public interface IOrderInfoService extends IService<OrderInfo> {
      * @return 结果
      */
     OrderInfo getPriceTotal(OrderInfo orderInfo);
+
+    /**
+     * 管理员审核提现申请
+     *
+     * @param withdrawInfo 提现记录
+     * @return 结果
+     */
+    boolean auditWithdraw(WithdrawInfo withdrawInfo) throws FebsException;
+
+    /**
+     * 根据用户ID获取优惠券
+     *
+     * @param userId 用户ID
+     * @return 结果
+     */
+    List<DiscountInfo> selectDiscountByUser(Integer userId);
 }

@@ -2,4 +2,37 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cc.mrbird.febs.cos.dao.WithdrawInfoMapper">
 
+    <!-- 分页获取提现记录信息 -->
+    <select id="selectWithdrawPage" resultType="java.util.LinkedHashMap">
+        select
+        wi.id,
+        wi.staff_id,
+        wi.withdraw_price,
+        wi.account_price,
+        wi.create_date,
+        wi.status,
+        si.code,
+        si.name,
+        si.sex,
+        si.images,
+        si.phone
+        from
+        withdraw_info wi
+        left join staff_info si on (si.id = wi.staff_id)
+        where 1 = 1
+        <if test="withdrawInfo.staffName != null and withdrawInfo.staffName != ''">
+            AND si.name LIKE CONCAT('%',#{withdrawInfo.staffName},'%')
+        </if>
+        <if test="withdrawInfo.code != null and withdrawInfo.code != ''">
+            AND si.code LIKE CONCAT('%',#{withdrawInfo.code},'%')
+        </if>
+        <if test="withdrawInfo.status != null and withdrawInfo.status != ''">
+            AND wi.status = #{withdrawInfo.status}
+        </if>
+        <if test="withdrawInfo.staffId != null and withdrawInfo.staffId != ''">
+            AND si.user_id = #{withdrawInfo.staffId}
+        </if>
+        order by wi.create_date desc
+
+    </select>
 </mapper>
