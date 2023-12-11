@@ -3,6 +3,10 @@ package cc.mrbird.febs.cos.entity;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.io.Serializable;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -18,6 +22,12 @@ import lombok.experimental.Accessors;
 public class OrderInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    /**
+     * 主键ID
+     */
+    @TableId(type = IdType.AUTO)
+    private Integer id;
 
     /**
      * 订单编号
@@ -42,7 +52,7 @@ public class OrderInfo implements Serializable {
     /**
      * 创建时间
      */
-    private LocalDateTime createDate;
+    private String createDate;
 
     /**
      * 备注信息
@@ -50,19 +60,19 @@ public class OrderInfo implements Serializable {
     private String remark;
 
     /**
-     * 订单状态
+     * 订单状态（0.未支付 1.待接单 2.配送中 3.已完成）
      */
     private String status;
 
     /**
      * 分配员工
      */
-    private String statfIds;
+    private String staffIds;
 
     /**
      * 下单时间
      */
-    private LocalDateTime payDate;
+    private String payDate;
 
     /**
      * 物品类型
@@ -102,7 +112,7 @@ public class OrderInfo implements Serializable {
     /**
      * 配送时间
      */
-    private LocalDateTime deliveryDate;
+    private String deliveryDate;
 
     /**
      * 物流信息
@@ -112,7 +122,41 @@ public class OrderInfo implements Serializable {
     /**
      * 完成时间
      */
-    private LocalDateTime finishDate;
+    private String finishDate;
 
+    /**
+     * 公里数
+     */
+    private BigDecimal kilometre;
 
+    /**
+     * 配送价格
+     */
+    private BigDecimal distributionPrice;
+
+    /**
+     * 订单价格
+     */
+    private BigDecimal orderPrice;
+
+    /**
+     * 优惠券ID
+     */
+    private Integer discountId;
+
+    /**
+     * 折扣后价格
+     */
+    private BigDecimal afterOrderPrice;
+
+    /**
+     * 订单积分
+     */
+    private BigDecimal integral;
+
+    /**
+     * 是否使用优惠券
+     */
+    @TableField(exist = false)
+    private boolean useDiscount;
 }

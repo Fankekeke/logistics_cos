@@ -11,14 +11,14 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 /**
- * 提现记录
+ * 优惠券管理
  *
  * @author FanK
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-public class WithdrawInfo implements Serializable {
+public class DiscountInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -29,22 +29,37 @@ public class WithdrawInfo implements Serializable {
     private Integer id;
 
     /**
-     * 员工ID
+     * 编号
      */
-    private Integer staffId;
+    private String code;
 
     /**
-     * 提现金额
+     * 满减金额
      */
-    private BigDecimal withdrawPrice;
+    private BigDecimal discountPrice;
 
     /**
-     * 账户余额
+     * 门槛金额
      */
-    private BigDecimal accountPrice;
+    private BigDecimal threshold;
 
     /**
-     * 创建时间
+     * 所属用户
+     */
+    private Integer userId;
+
+    /**
+     * 优惠券名称
+     */
+    private String couponName;
+
+    /**
+     * 类型（1.满减 2.折扣）
+     */
+    private String type;
+
+    /**
+     * 发放时间
      */
     private String createDate;
 

@@ -1,6 +1,6 @@
 package cc.mrbird.febs.cos.dao;
 
-import cc.mrbird.febs.cos.entity.WithdrawInfo;
+import cc.mrbird.febs.cos.entity.DiscountInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -11,14 +11,14 @@ import java.util.LinkedHashMap;
 /**
  * @author FanK
  */
-public interface WithdrawInfoMapper extends BaseMapper<WithdrawInfo> {
+public interface DiscountInfoMapper extends BaseMapper<DiscountInfo> {
 
     /**
-     * 分页获取提现记录信息
+     * 分页获取优惠券信息
      *
      * @param page         分页对象
-     * @param withdrawInfo 提现记录信息
+     * @param discountInfo 优惠券信息
      * @return 结果
      */
-    IPage<LinkedHashMap<String, Object>> selectWithdrawPage(Page<WithdrawInfo> page, @Param("withdrawInfo") WithdrawInfo withdrawInfo);
+    IPage<LinkedHashMap<String, Object>> selectDiscountPage(Page<DiscountInfo> page, @Param("discountInfo") DiscountInfo discountInfo);
 }
