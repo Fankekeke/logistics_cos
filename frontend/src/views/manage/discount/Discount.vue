@@ -7,7 +7,7 @@
           <div :class="advanced ? null: 'fold'">
             <a-col :md="6" :sm="24">
               <a-form-item
-                label="菜品编号"
+                label="优惠券编号"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
                 <a-input v-model="queryParams.code"/>
@@ -15,18 +15,32 @@
             </a-col>
             <a-col :md="6" :sm="24">
               <a-form-item
-                label="菜品名称"
+                label="用户名称"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
-                <a-input v-model="queryParams.name"/>
+                <a-input v-model="queryParams.userName"/>
               </a-form-item>
             </a-col>
             <a-col :md="6" :sm="24">
               <a-form-item
-                label="商家名称"
+                label="优惠券类型"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
-                <a-input v-model="queryParams.merchantName"/>
+                <a-select v-model="queryParams.type" allowClear>
+                  <a-select-option value="1">满减</a-select-option>
+                  <a-select-option value="2">折扣</a-select-option>
+                </a-select>
+              </a-form-item>
+            </a-col>
+            <a-col :md="6" :sm="24">
+              <a-form-item
+                label="状态"
+                :labelCol="{span: 5}"
+                :wrapperCol="{span: 18, offset: 1}">
+                <a-select v-model="queryParams.status" allowClear>
+                  <a-select-option value="0">未使用</a-select-option>
+                  <a-select-option value="1">已使用</a-select-option>
+                </a-select>
               </a-form-item>
             </a-col>
           </div>
@@ -127,13 +141,33 @@ export default {
     }),
     columns () {
       return [{
-        title: '菜品编号',
+        title: '优惠券编号',
         dataIndex: 'code'
       }, {
-        title: '菜品名称',
-        dataIndex: 'name'
+        title: '优惠券名称',
+        dataIndex: 'couponName'
       }, {
-        title: '菜品图片',
+        title: '用户名称',
+        dataIndex: 'userName',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text
+          } else {
+            return '- -'
+          }
+        }
+      }, {
+        title: '联系方式',
+        dataIndex: 'phone',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text
+          } else {
+            return '- -'
+          }
+        }
+      }, {
+        title: '用户头像',
         dataIndex: 'images',
         customRender: (text, record, index) => {
           if (!record.images) return <a-avatar shape="square" icon="user" />
@@ -145,83 +179,34 @@ export default {
           </a-popover>
         }
       }, {
-        title: '商家名称',
-        dataIndex: 'merchantName',
-        customRender: (text, row, index) => {
-          if (text !== null) {
-            return text
-          } else {
-            return '- -'
-          }
-        }
-      }, {
-        title: '商家图片',
-        dataIndex: 'merchantImages',
-        customRender: (text, record, index) => {
-          if (!record.merchantImages) return <a-avatar shape="square" icon="user" />
-          return <a-popover>
-            <template slot="content">
-              <a-avatar shape="square" size={132} icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.merchantImages.split(',')[0] } />
-            </template>
-            <a-avatar shape="square" icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.merchantImages.split(',')[0] } />
-          </a-popover>
-        }
-      }, {
-        title: '原料',
-        dataIndex: 'rawMaterial',
-        customRender: (text, row, index) => {
-          if (text !== null) {
-            return text
-          } else {
-            return '- -'
-          }
-        }
-      }, {
-        title: '份量',
-        dataIndex: 'portion',
-        customRender: (text, row, index) => {
-          if (text !== null) {
-            return text
-          } else {
-            return '- -'
-          }
-        }
-      }, {
-        title: '口味',
-        dataIndex: 'taste',
-        customRender: (text, row, index) => {
-          if (text !== null) {
-            return text
-          } else {
-            return '- -'
-          }
-        }
-      }, {
-        title: '价格',
-        dataIndex: 'unitPrice',
-        customRender: (text, row, index) => {
-          if (text !== null) {
-            return text + '元'
-          } else {
-            return '- -'
-          }
-        }
-      }, {
         title: '状态',
         dataIndex: 'status',
         customRender: (text, row, index) => {
           switch (text) {
             case '0':
-              return <a-tag color="red">下架</a-tag>
+              return <a-tag color="green">未使用</a-tag>
             case '1':
-              return <a-tag color="green">上架</a-tag>
+              return <a-tag color="red">已使用</a-tag>
             default:
               return '- -'
           }
         }
       }, {
-        title: '销量',
-        dataIndex: 'saleNum',
+        title: '优惠券类型',
+        dataIndex: 'type',
+        customRender: (text, row, index) => {
+          switch (text) {
+            case '0':
+              return <a-tag>满减</a-tag>
+            case '1':
+              return <a-tag>折扣</a-tag>
+            default:
+              return '- -'
+          }
+        }
+      }, {
+        title: '发放时间',
+        dataIndex: 'createDate',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text
@@ -261,7 +246,7 @@ export default {
     },
     handledishesAddSuccess () {
       this.dishesAdd.visiable = false
-      this.$message.success('新增菜品成功')
+      this.$message.success('新增优惠券成功')
       this.search()
     },
     edit (record) {
@@ -273,7 +258,7 @@ export default {
     },
     handledishesEditSuccess () {
       this.dishesEdit.visiable = false
-      this.$message.success('修改菜品成功')
+      this.$message.success('修改优惠券成功')
       this.search()
     },
     handleDeptChange (value) {

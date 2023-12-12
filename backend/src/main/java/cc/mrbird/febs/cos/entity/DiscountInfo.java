@@ -55,6 +55,11 @@ public class DiscountInfo implements Serializable {
     private String couponName;
 
     /**
+     * 折扣
+     */
+    private BigDecimal rebate;
+
+    /**
      * 类型（1.满减 2.折扣）
      */
     private String type;
