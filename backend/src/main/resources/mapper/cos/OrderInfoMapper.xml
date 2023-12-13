@@ -13,7 +13,7 @@
         oi.create_date,
         oi.remark,
         oi.status,
-        oi.statf_ids,
+        oi.staff_ids,
         oi.pay_date,
         oi.goods_type,
         oi.images,
@@ -40,6 +40,15 @@
         where 1 = 1
         <if test="orderInfo.code != null and orderInfo.code != ''">
             AND di.code LIKE CONCAT('%',#{orderInfo.code},'%')
+        </if>
+        <if test="orderInfo.userName != null and orderInfo.userName != ''">
+            AND ui.name LIKE CONCAT('%',#{orderInfo.userName},'%')
+        </if>
+        <if test="orderInfo.orderName != null and orderInfo.orderName != ''">
+            AND di.order_name LIKE CONCAT('%',#{orderInfo.orderName},'%')
+        </if>
+        <if test="orderInfo.phone != null and orderInfo.phone != ''">
+            AND ui.phone LIKE CONCAT('%',#{orderInfo.phone},'%')
         </if>
         order by oi.create_date desc
     </select>

@@ -159,4 +159,16 @@ public class OrderInfo implements Serializable {
      */
     @TableField(exist = false)
     private boolean useDiscount;
+
+    /**
+     * 联系方式
+     */
+    @TableField(exist = false)
+    private String phone;
+
+    /**
+     * 用户名称
+     */
+    @TableField(exist = false)
+    private String userName;
 }

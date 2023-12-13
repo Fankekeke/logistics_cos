@@ -39,6 +39,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
     private final IStaffInfoService staffInfoService;
 
+    private final IStaffIncomeService staffIncomeService;
+
     /**
      * 分页获取订单信息
      *
@@ -83,6 +85,49 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             orderInfo.setUseDiscount(discountCheck);
         }
         return orderInfo;
+    }
+
+    /**
+     * 查询收益记录详情
+     *
+     * @param incomeId 记录ID
+     * @return 结果
+     */
+    @Override
+    public LinkedHashMap<String, Object> selectIncomeDetail(Integer incomeId) {
+        // 返回数据
+        LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>() {
+            {
+                put("income", null);
+                put("staff", null);
+                put("order", null);
+                put("startAddress", null);
+                put("endAddress", null);
+                put("user", null);
+            }
+        };
+
+        // 收益信息
+        StaffIncome staffIncome = staffIncomeService.getById(incomeId);
+        result.put("income", staffIncome);
+        // 订单信息
+        OrderInfo orderInfo = this.getById(staffIncome.getOrderId());
+        result.put("order", orderInfo);
+        // 员工信息
+        StaffInfo staffInfo = staffInfoService.getById(staffIncome.getStaffId());
+        result.put("staff", staffInfo);
+        // 用户信息
+        UserInfo userInfo = userInfoService.getById(orderInfo.getUserId());
+        result.put("user", userInfo);
+
+        // 开始配送地址
+        AddressInfo startAddress = addressInfoService.getById(orderInfo.getStartAddressId());
+        result.put("startAddress", startAddress);
+        // 收货地址
+        AddressInfo endAddress = addressInfoService.getById(orderInfo.getEndAddressId());
+        result.put("endAddress", endAddress);
+
+        return result;
     }
 
     /**

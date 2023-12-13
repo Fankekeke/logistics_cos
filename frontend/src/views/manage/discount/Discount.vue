@@ -68,52 +68,52 @@
                @change="handleTableChange">
         <template slot="operation" slot-scope="text, record">
           <a-icon type="setting" theme="twoTone" twoToneColor="#4a9ff5" @click="edit(record)" title="修 改"></a-icon>
-          <a-icon type="file-search" @click="dishesViewOpen(record)" title="详 情" style="margin-left: 15px"></a-icon>
+          <a-icon type="file-search" @click="discountViewOpen(record)" title="详 情" style="margin-left: 15px"></a-icon>
         </template>
       </a-table>
     </div>
-    <dishes-add
-      v-if="dishesAdd.visiable"
-      @close="handledishesAddClose"
-      @success="handledishesAddSuccess"
-      :dishesAddVisiable="dishesAdd.visiable">
-    </dishes-add>
-    <dishes-edit
-      ref="dishesEdit"
-      @close="handledishesEditClose"
-      @success="handledishesEditSuccess"
-      :dishesEditVisiable="dishesEdit.visiable">
-    </dishes-edit>
-    <dishes-view
-      @close="handledishesViewClose"
-      :dishesShow="dishesView.visiable"
-      :dishesData="dishesView.data">
-    </dishes-view>
+    <discount-add
+      v-if="discountAdd.visiable"
+      @close="handlediscountAddClose"
+      @success="handlediscountAddSuccess"
+      :discountAddVisiable="discountAdd.visiable">
+    </discount-add>
+    <discount-edit
+      ref="discountEdit"
+      @close="handlediscountEditClose"
+      @success="handlediscountEditSuccess"
+      :discountEditVisiable="discountEdit.visiable">
+    </discount-edit>
+    <discount-view
+      @close="handlediscountViewClose"
+      :discountShow="discountView.visiable"
+      :discountData="discountView.data">
+    </discount-view>
   </a-card>
 </template>
 
 <script>
 import RangeDate from '@/components/datetime/RangeDate'
-import dishesAdd from './DiscountAdd'
-import dishesEdit from './DiscountEdit'
-import dishesView from './DiscountView.vue'
+import discountAdd from './DiscountAdd'
+import discountEdit from './DiscountEdit'
+import discountView from './DiscountView.vue'
 import {mapState} from 'vuex'
 import moment from 'moment'
 moment.locale('zh-cn')
 
 export default {
-  name: 'dishes',
-  components: {dishesAdd, dishesEdit, dishesView, RangeDate},
+  name: 'discount',
+  components: {discountAdd, discountEdit, discountView, RangeDate},
   data () {
     return {
       advanced: false,
-      dishesAdd: {
+      discountAdd: {
         visiable: false
       },
-      dishesEdit: {
+      discountEdit: {
         visiable: false
       },
-      dishesView: {
+      discountView: {
         visiable: false,
         data: null
       },
@@ -225,12 +225,12 @@ export default {
     this.fetch()
   },
   methods: {
-    dishesViewOpen (row) {
-      this.dishesView.data = row
-      this.dishesView.visiable = true
+    discountViewOpen (row) {
+      this.discountView.data = row
+      this.discountView.visiable = true
     },
-    handledishesViewClose () {
-      this.dishesView.visiable = false
+    handlediscountViewClose () {
+      this.discountView.visiable = false
     },
     onSelectChange (selectedRowKeys) {
       this.selectedRowKeys = selectedRowKeys
@@ -239,25 +239,25 @@ export default {
       this.advanced = !this.advanced
     },
     add () {
-      this.dishesAdd.visiable = true
+      this.discountAdd.visiable = true
     },
-    handledishesAddClose () {
-      this.dishesAdd.visiable = false
+    handlediscountAddClose () {
+      this.discountAdd.visiable = false
     },
-    handledishesAddSuccess () {
-      this.dishesAdd.visiable = false
+    handlediscountAddSuccess () {
+      this.discountAdd.visiable = false
       this.$message.success('新增优惠券成功')
       this.search()
     },
     edit (record) {
-      this.$refs.dishesEdit.setFormValues(record)
-      this.dishesEdit.visiable = true
+      this.$refs.discountEdit.setFormValues(record)
+      this.discountEdit.visiable = true
     },
-    handledishesEditClose () {
-      this.dishesEdit.visiable = false
+    handlediscountEditClose () {
+      this.discountEdit.visiable = false
     },
-    handledishesEditSuccess () {
-      this.dishesEdit.visiable = false
+    handlediscountEditSuccess () {
+      this.discountEdit.visiable = false
       this.$message.success('修改优惠券成功')
       this.search()
     },
@@ -276,7 +276,7 @@ export default {
         centered: true,
         onOk () {
           let ids = that.selectedRowKeys.join(',')
-          that.$delete('/cos/dishes-info/' + ids).then(() => {
+          that.$delete('/cos/discount-info/' + ids).then(() => {
             that.$message.success('删除成功')
             that.selectedRowKeys = []
             that.search()
@@ -346,7 +346,7 @@ export default {
         params.size = this.pagination.defaultPageSize
         params.current = this.pagination.defaultCurrent
       }
-      this.$get('/cos/dishes-info/page', {
+      this.$get('/cos/discount-info/page', {
         ...params
       }).then((r) => {
         let data = r.data.data

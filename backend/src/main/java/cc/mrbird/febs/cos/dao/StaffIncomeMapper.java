@@ -14,7 +14,7 @@ import java.util.LinkedHashMap;
 public interface StaffIncomeMapper extends BaseMapper<StaffIncome> {
 
     /**
-     * 分页获取公告信息
+     * 分页获取收益信息
      *
      * @param page        分页对象
      * @param staffIncome 公告信息

@@ -2,4 +2,36 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cc.mrbird.febs.cos.dao.StaffIncomeMapper">
 
+    <!-- 分页获取收益信息 -->
+    <select id="selectStaffIncomePage" resultType="java.util.LinkedHashMap">
+        select
+        stin.id,
+        stin.staff_id,
+        stin.order_id,
+        stin.income,
+        stin.delivery_price,
+        stin.total_price,
+        stin.create_date,
+        si.code as staffCode,
+        si.name as staffName,
+        si.phone,
+        si.images,
+        oi.code as orderCode,
+        oi.order_name
+        from
+        staff_income stin
+        left join staff_info si on (si.id = stin.staff_id)
+        left join order_info oi on (oi.id = stin.order_id)
+        where 1 = 1
+        <if test="staffIncome.code != null and staffIncome.code != ''">
+            AND oi.code LIKE CONCAT('%',#{staffIncome.code},'%')
+        </if>
+        <if test="staffIncome.staffName != null and staffIncome.staffName != ''">
+            AND si.name LIKE CONCAT('%',#{staffIncome.staffName},'%')
+        </if>
+        <if test="staffIncome.orderName != null and staffIncome.orderName != ''">
+            AND oi.order_name LIKE CONCAT('%',#{staffIncome.orderName},'%')
+        </if>
+        order by stin.create_date desc
+    </select>
 </mapper>

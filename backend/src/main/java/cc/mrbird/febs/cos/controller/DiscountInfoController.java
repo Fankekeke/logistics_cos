@@ -64,6 +64,8 @@ public class DiscountInfoController {
      */
     @PostMapping
     public R save(DiscountInfo discountInfo) {
+        discountInfo.setCode("DC-" + System.currentTimeMillis());
+        discountInfo.setStatus("0");
         discountInfo.setCreateDate(DateUtil.formatDateTime(new Date()));
         return R.ok(discountInfoService.save(discountInfo));
     }

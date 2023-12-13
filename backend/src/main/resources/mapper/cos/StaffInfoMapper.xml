@@ -34,9 +34,6 @@
         <if test="staffInfo.status != null and staffInfo.status != ''">
             AND sti.status = #{staffInfo.status}
         </if>
-        <if test="staffInfo.merchantId != null and staffInfo.merchantId != ''">
-            AND mi.user_id = #{staffInfo.merchantId}
-        </if>
         order by
         sti.create_date desc
     </select>

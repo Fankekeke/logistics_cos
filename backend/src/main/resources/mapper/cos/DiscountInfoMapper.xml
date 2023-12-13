@@ -14,6 +14,8 @@
         di.`type`,
         di.`status`,
         di.create_date,
+        di.rebate,
+        di.content,
         ui.name as userName,
         ui.mail,
         ui.phone,

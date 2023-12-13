@@ -1,5 +1,5 @@
 <template>
-  <a-modal v-model="show" title="新增菜品" @cancel="onClose" :width="800">
+  <a-modal v-model="show" title="新增优惠券" @cancel="onClose" :width="800">
     <template slot="footer">
       <a-button key="back" @click="onClose">
         取消
@@ -11,108 +11,64 @@
     <a-form :form="form" layout="vertical">
       <a-row :gutter="20">
         <a-col :span="12">
-          <a-form-item label='菜品名称' v-bind="formItemLayout">
+          <a-form-item label='优惠券名称' v-bind="formItemLayout">
             <a-input v-decorator="[
-            'name',
-            { rules: [{ required: true, message: '请输入菜品名称!' }] }
+            'couponName',
+            { rules: [{ required: true, message: '请输入优惠券名称!' }] }
             ]"/>
           </a-form-item>
         </a-col>
         <a-col :span="12">
-          <a-form-item label='原料' v-bind="formItemLayout">
-            <a-input v-decorator="[
-            'rawMaterial',
-            { rules: [{ required: true, message: '请输入原料!' }] }
-            ]"/>
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item label='份量' v-bind="formItemLayout">
-            <a-input-number style="width: 100%" v-decorator="[
-            'portion',
-            { rules: [{ required: true, message: '请输入份量!' }] }
-            ]" :min="1" :step="1"/>
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item label='口味' v-bind="formItemLayout">
-            <a-input v-decorator="[
-            'taste',
-            { rules: [{ required: true, message: '请输入口味!' }] }
-            ]"/>
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item label='价格' v-bind="formItemLayout">
-            <a-input-number style="width: 100%" v-decorator="[
-            'unitPrice',
-            { rules: [{ required: true, message: '请输入价格!' }] }
-            ]" :min="0.1" :step="0.1"/>
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item label='菜品状态' v-bind="formItemLayout">
+          <a-form-item label='优惠券类型' v-bind="formItemLayout" @change="handleChange">
             <a-select v-decorator="[
-              'status',
-              { rules: [{ required: true, message: '请输入菜品状态!' }] }
+              'type',
+              { rules: [{ required: true, message: '请输入优惠券类型!' }] }
               ]">
-              <a-select-option value="0">下架</a-select-option>
-              <a-select-option value="1">上架</a-select-option>
+              <a-select-option value="1">满减</a-select-option>
+              <a-select-option value="2">折扣</a-select-option>
             </a-select>
           </a-form-item>
         </a-col>
-        <a-col :span="12">
-          <a-form-item label='热量含量' v-bind="formItemLayout">
+        <a-col :span="12" v-if="discountType != null && discountType == 1">
+          <a-form-item label='门槛金额' v-bind="formItemLayout">
             <a-input-number style="width: 100%" v-decorator="[
-            'heat',
-            { rules: [{ required: true, message: '请输入热量含量!' }] }
+            'threshold',
+            { rules: [{ required: true, message: '请输入门槛金额!' }] }
             ]" :min="0.1" :step="0.1"/>
           </a-form-item>
         </a-col>
-        <a-col :span="12">
-          <a-form-item label='蛋白质含量' v-bind="formItemLayout">
+        <a-col :span="12" v-if="discountType != null && discountType == 1">
+          <a-form-item label='满减金额' v-bind="formItemLayout">
             <a-input-number style="width: 100%" v-decorator="[
-            'protein',
-            { rules: [{ required: true, message: '请输入蛋白质含量!' }] }
+            'discountPrice',
+            { rules: [{ required: true, message: '请输入满减金额!' }] }
             ]" :min="0.1" :step="0.1"/>
           </a-form-item>
         </a-col>
-        <a-col :span="12">
-          <a-form-item label='脂肪含量' v-bind="formItemLayout">
+        <a-col :span="12" v-if="discountType != null && discountType == 2">
+          <a-form-item label='折扣' v-bind="formItemLayout">
             <a-input-number style="width: 100%" v-decorator="[
-            'fat',
-            { rules: [{ required: true, message: '请输入脂肪含量!' }] }
-            ]" :min="0.1" :step="0.1"/>
+            'rebate',
+            { rules: [{ required: true, message: '请输入折扣!' }] }
+            ]" :min="0.1" :max="9.9" :step="0.1"/>
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label='所属用户' v-bind="formItemLayout">
+            <a-select style="width: 100%" v-decorator="[
+              'userId',
+              { rules: [{ required: true, message: '请输入所属用户!' }] }
+              ]">
+              <a-select-option v-for="(item, index) in userList" :value="item.id" :key="index">{{ item.name }}</a-select-option>
+            </a-select>
           </a-form-item>
         </a-col>
         <a-col :span="24">
-          <a-form-item label='菜品描述' v-bind="formItemLayout">
+          <a-form-item label='备注' v-bind="formItemLayout">
             <a-textarea :rows="6" v-decorator="[
             'content',
-             { rules: [{ required: true, message: '请输入菜品描述!' }] }
+             { rules: [{ required: true, message: '请输入优惠券描述!' }] }
             ]"/>
-          </a-form-item>
-        </a-col>
-        <a-col :span="24">
-          <a-form-item label='图册' v-bind="formItemLayout">
-            <a-upload
-              name="avatar"
-              action="http://127.0.0.1:9527/file/fileUpload/"
-              list-type="picture-card"
-              :file-list="fileList"
-              @preview="handlePreview"
-              @change="picHandleChange"
-            >
-              <div v-if="fileList.length < 8">
-                <a-icon type="plus" />
-                <div class="ant-upload-text">
-                  Upload
-                </div>
-              </div>
-            </a-upload>
-            <a-modal :visible="previewVisible" :footer="null" @cancel="handleCancel">
-              <img alt="example" style="width: 100%" :src="previewImage" />
-            </a-modal>
           </a-form-item>
         </a-col>
       </a-row>
@@ -135,9 +91,9 @@ const formItemLayout = {
   wrapperCol: { span: 24 }
 }
 export default {
-  name: 'dishesAdd',
+  name: 'discountAdd',
   props: {
-    dishesAddVisiable: {
+    discountAddVisiable: {
       default: false
     }
   },
@@ -147,7 +103,7 @@ export default {
     }),
     show: {
       get: function () {
-        return this.dishesAddVisiable
+        return this.discountAddVisiable
       },
       set: function () {
       }
@@ -160,10 +116,23 @@ export default {
       loading: false,
       fileList: [],
       previewVisible: false,
-      previewImage: ''
+      previewImage: '',
+      userList: [],
+      discountType: null
     }
   },
+  mounted () {
+    this.selectUserList()
+  },
   methods: {
+    handleChange (value) {
+      this.discountType = value
+    },
+    selectUserList () {
+      this.$get(`/cos/user-info/list`).then((r) => {
+        this.userList = r.data.data
+      })
+    },
     handleCancel () {
       this.previewVisible = false
     },
@@ -192,11 +161,9 @@ export default {
         images.push(image.response)
       })
       this.form.validateFields((err, values) => {
-        values.merchantId = this.currentUser.userId
-        values.images = images.length > 0 ? images.join(',') : null
         if (!err) {
           this.loading = true
-          this.$post('/cos/dishes-info', {
+          this.$post('/cos/discount-info', {
             ...values
           }).then((r) => {
             this.reset()

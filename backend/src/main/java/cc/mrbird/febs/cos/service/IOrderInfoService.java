@@ -35,6 +35,14 @@ public interface IOrderInfoService extends IService<OrderInfo> {
     OrderInfo getPriceTotal(OrderInfo orderInfo);
 
     /**
+     * 查询收益记录详情
+     *
+     * @param incomeId 记录ID
+     * @return 结果
+     */
+    LinkedHashMap<String, Object> selectIncomeDetail(Integer incomeId);
+
+    /**
      * 管理员审核提现申请
      *
      * @param withdrawInfo 提现记录

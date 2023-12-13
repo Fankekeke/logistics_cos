@@ -7,15 +7,7 @@
           <div :class="advanced ? null: 'fold'">
             <a-col :md="6" :sm="24">
               <a-form-item
-                label="员工姓名"
-                :labelCol="{span: 5}"
-                :wrapperCol="{span: 18, offset: 1}">
-                <a-input v-model="queryParams.name"/>
-              </a-form-item>
-            </a-col>
-            <a-col :md="6" :sm="24">
-              <a-form-item
-                label="员工编号"
+                label="订单编号"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
                 <a-input v-model="queryParams.code"/>
@@ -23,13 +15,18 @@
             </a-col>
             <a-col :md="6" :sm="24">
               <a-form-item
-                label="员工状态"
+                label="员工姓名"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
-                <a-select v-model="queryParams.status" allowClear>
-                  <a-select-option value="1">在职</a-select-option>
-                  <a-select-option value="2">离职</a-select-option>
-                </a-select>
+                <a-input v-model="queryParams.staffName"/>
+              </a-form-item>
+            </a-col>
+            <a-col :md="6" :sm="24">
+              <a-form-item
+                label="订单名称"
+                :labelCol="{span: 5}"
+                :wrapperCol="{span: 18, offset: 1}">
+                <a-input v-model="queryParams.orderName"/>
               </a-form-item>
             </a-col>
           </div>
@@ -42,7 +39,6 @@
     </div>
     <div>
       <div class="operator">
-        <a-button type="primary" ghost @click="add">新增</a-button>
         <a-button @click="batchDelete">删除</a-button>
       </div>
       <!-- 表格区域 -->
@@ -55,55 +51,51 @@
                :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
                :scroll="{ x: 900 }"
                @change="handleTableChange">
-        <template slot="titleShow" slot-scope="text, record">
+        <template slot="evaluateShow" slot-scope="text, record">
           <template>
             <a-tooltip>
               <template slot="title">
-                {{ record.title }}
+                {{ record.content }}
               </template>
-              {{ record.title.slice(0, 8) }} ...
+              {{ record.content.slice(0, 10) }} ...
             </a-tooltip>
           </template>
         </template>
         <template slot="operation" slot-scope="text, record">
-          <a-icon type="setting" theme="twoTone" twoToneColor="#4a9ff5" @click="edit(record)" title="修 改" style="margin-left: 15px"></a-icon>
+          <a-icon type="file-search" @click="orderViewOpen(record)" title="详 情"></a-icon>
         </template>
       </a-table>
+      <order-view
+        @close="handleorderViewClose"
+        :orderShow="orderView.visiable"
+        :orderData="orderView.data">
+      </order-view>
     </div>
-    <staff-add
-      v-if="staffAdd.visiable"
-      @close="handlestaffAddClose"
-      @success="handlestaffAddSuccess"
-      :staffAddVisiable="staffAdd.visiable">
-    </staff-add>
-    <staff-edit
-      ref="staffEdit"
-      @close="handlestaffEditClose"
-      @success="handlestaffEditSuccess"
-      :staffEditVisiable="staffEdit.visiable">
-    </staff-edit>
   </a-card>
 </template>
 
 <script>
 import RangeDate from '@/components/datetime/RangeDate'
-import staffAdd from './StaffAdd'
-import staffEdit from './StaffEdit'
 import {mapState} from 'vuex'
 import moment from 'moment'
+import OrderView from './OrderView'
 moment.locale('zh-cn')
 
 export default {
-  name: 'staff',
-  components: {staffAdd, staffEdit, RangeDate},
+  name: 'evaluate',
+  components: {RangeDate, OrderView},
   data () {
     return {
       advanced: false,
-      staffAdd: {
+      evaluateAdd: {
         visiable: false
       },
-      staffEdit: {
+      evaluateEdit: {
         visiable: false
+      },
+      orderView: {
+        visiable: false,
+        data: null
       },
       queryParams: {},
       filteredInfo: null,
@@ -129,26 +121,27 @@ export default {
     }),
     columns () {
       return [{
-        title: '员工姓名',
-        dataIndex: 'name'
-      }, {
         title: '员工编号',
-        dataIndex: 'code'
-      }, {
-        title: '性别',
-        dataIndex: 'sex',
+        dataIndex: 'staffCode',
         customRender: (text, row, index) => {
-          switch (text) {
-            case 1:
-              return <a-tag>男</a-tag>
-            case 2:
-              return <a-tag>女</a-tag>
-            default:
-              return '- -'
+          if (text !== null) {
+            return text
+          } else {
+            return '- -'
           }
         }
       }, {
-        title: '照片',
+        title: '员工姓名',
+        dataIndex: 'staffName',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text
+          } else {
+            return '- -'
+          }
+        }
+      }, {
+        title: '头像',
         dataIndex: 'images',
         customRender: (text, record, index) => {
           if (!record.images) return <a-avatar shape="square" icon="user" />
@@ -160,21 +153,58 @@ export default {
           </a-popover>
         }
       }, {
-        title: '状态',
-        dataIndex: 'status',
+        title: '订单编号',
+        dataIndex: 'orderCode',
         customRender: (text, row, index) => {
-          switch (text) {
-            case 1:
-              return <a-tag color="green">在职</a-tag>
-            case 2:
-              return <a-tag color="red">离职</a-tag>
-            default:
-              return '- -'
+          if (text !== null) {
+            return text
+          } else {
+            return '- -'
           }
         }
       }, {
-        title: '余额',
-        dataIndex: 'price',
+        title: '订单名称',
+        dataIndex: 'orderName',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text
+          } else {
+            return '- -'
+          }
+        }
+      }, {
+        title: '联系方式',
+        dataIndex: 'phone',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text + '分'
+          } else {
+            return '- -'
+          }
+        }
+      }, {
+        title: '订单收益',
+        dataIndex: 'income',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text + '元'
+          } else {
+            return '- -'
+          }
+        }
+      }, {
+        title: '配送费用',
+        dataIndex: 'deliveryPrice',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text + '元'
+          } else {
+            return '- -'
+          }
+        }
+      }, {
+        title: '总收益',
+        dataIndex: 'totalPrice',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text + '元'
@@ -203,11 +233,12 @@ export default {
     this.fetch()
   },
   methods: {
-    editStatus (row, status) {
-      this.$post('/cos/staff-info/account/status', { staffId: row.id, status }).then((r) => {
-        this.$message.success('修改成功')
-        this.fetch()
-      })
+    orderViewOpen (row) {
+      this.orderView.data = row
+      this.orderView.visiable = true
+    },
+    handleorderViewClose () {
+      this.orderView.visiable = false
     },
     onSelectChange (selectedRowKeys) {
       this.selectedRowKeys = selectedRowKeys
@@ -216,26 +247,26 @@ export default {
       this.advanced = !this.advanced
     },
     add () {
-      this.staffAdd.visiable = true
+      this.evaluateAdd.visiable = true
     },
-    handlestaffAddClose () {
-      this.staffAdd.visiable = false
+    handleevaluateAddClose () {
+      this.evaluateAdd.visiable = false
     },
-    handlestaffAddSuccess () {
-      this.staffAdd.visiable = false
-      this.$message.success('新增员工成功')
+    handleevaluateAddSuccess () {
+      this.evaluateAdd.visiable = false
+      this.$message.success('新增评价成功')
       this.search()
     },
     edit (record) {
-      this.$refs.staffEdit.setFormValues(record)
-      this.staffEdit.visiable = true
+      this.$refs.evaluateEdit.setFormValues(record)
+      this.evaluateEdit.visiable = true
     },
-    handlestaffEditClose () {
-      this.staffEdit.visiable = false
+    handleevaluateEditClose () {
+      this.evaluateEdit.visiable = false
     },
-    handlestaffEditSuccess () {
-      this.staffEdit.visiable = false
-      this.$message.success('修改员工成功')
+    handleevaluateEditSuccess () {
+      this.evaluateEdit.visiable = false
+      this.$message.success('修改评价成功')
       this.search()
     },
     handleDeptChange (value) {
@@ -253,7 +284,7 @@ export default {
         centered: true,
         onOk () {
           let ids = that.selectedRowKeys.join(',')
-          that.$delete('/cos/staff-info/' + ids).then(() => {
+          that.$delete('/cos/staff-income/' + ids).then(() => {
             that.$message.success('删除成功')
             that.selectedRowKeys = []
             that.search()
@@ -323,10 +354,10 @@ export default {
         params.size = this.pagination.defaultPageSize
         params.current = this.pagination.defaultCurrent
       }
-      if (params.status === undefined) {
-        delete params.status
+      if (params.type === undefined) {
+        delete params.type
       }
-      this.$get('/cos/staff-info/page', {
+      this.$get('/cos/staff-income/page', {
         ...params
       }).then((r) => {
         let data = r.data.data

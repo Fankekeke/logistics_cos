@@ -49,6 +49,17 @@ public class OrderInfoController {
     }
 
     /**
+     * 查询收益记录详情
+     *
+     * @param id 记录ID
+     * @return 结果
+     */
+    @GetMapping("/income/{id}")
+    public R selectIncomeDetail(@PathVariable("id") Integer id) {
+        return R.ok(orderInfoService.selectIncomeDetail(id));
+    }
+
+    /**
      * 管理员审核提现申请
      *
      * @param withdrawInfo 提现记录

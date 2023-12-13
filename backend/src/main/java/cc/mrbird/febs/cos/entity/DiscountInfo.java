@@ -65,6 +65,11 @@ public class DiscountInfo implements Serializable {
     private String type;
 
     /**
+     * 备注
+     */
+    private String content;
+
+    /**
      * 发放时间
      */
     private String createDate;
