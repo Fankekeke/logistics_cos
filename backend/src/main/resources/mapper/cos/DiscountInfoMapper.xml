@@ -22,7 +22,7 @@
         ui.images
         from
         discount_info di
-        left join user_id ui on (ui.id = di.user_id)
+        left join user_info ui on (ui.id = di.user_id)
         where 1 = 1
         <if test="discountInfo.code != null and discountInfo.code != ''">
             AND di.code LIKE CONCAT('%',#{discountInfo.code},'%')

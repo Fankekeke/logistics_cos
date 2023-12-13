@@ -14,15 +14,9 @@
         sti.images,
         sti.create_date,
         sti.user_id,
-        sti.price,
-        sti.canteen_id,
-        mi.name as merchantName,
-        mi.code as merchantCode,
-        mi.images as merchantImage
+        sti.price
         from
         staff_info sti
-        left join merchant_info mi on
-        (mi.id = sti.canteen_id)
         where
         1 = 1
         <if test="staffInfo.name != null and staffInfo.name != ''">

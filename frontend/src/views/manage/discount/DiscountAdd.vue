@@ -19,8 +19,8 @@
           </a-form-item>
         </a-col>
         <a-col :span="12">
-          <a-form-item label='优惠券类型' v-bind="formItemLayout" @change="handleChange">
-            <a-select v-decorator="[
+          <a-form-item label='优惠券类型' v-bind="formItemLayout">
+            <a-select @change="handleChange" v-decorator="[
               'type',
               { rules: [{ required: true, message: '请输入优惠券类型!' }] }
               ]">
@@ -127,6 +127,7 @@ export default {
   methods: {
     handleChange (value) {
       this.discountType = value
+      console.log(this.discountType)
     },
     selectUserList () {
       this.$get(`/cos/user-info/list`).then((r) => {
