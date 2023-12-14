@@ -131,6 +131,31 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     /**
+     * 提现记录详情
+     *
+     * @param withdrawId 提现记录ID
+     * @return 结果
+     */
+    @Override
+    public LinkedHashMap<String, Object> selectWithdrawDetail(Integer withdrawId) {
+        // 返回数据
+        LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>() {
+            {
+                put("withdraw", null);
+                put("staff", null);
+            }
+        };
+        // 提现记录
+        WithdrawInfo withdrawInfo = withdrawInfoService.getById(withdrawId);
+        result.put("withdraw", withdrawInfo);
+
+        // 员工信息
+        StaffInfo staffInfo = staffInfoService.getById(withdrawInfo.getStaffId());
+        result.put("staff", staffInfo);
+        return result;
+    }
+
+    /**
      * 管理员审核提现申请
      *
      * @param withdrawInfo 提现记录

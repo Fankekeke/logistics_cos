@@ -43,6 +43,14 @@ public interface IOrderInfoService extends IService<OrderInfo> {
     LinkedHashMap<String, Object> selectIncomeDetail(Integer incomeId);
 
     /**
+     * 提现记录详情
+     *
+     * @param withdrawId 提现记录ID
+     * @return 结果
+     */
+    LinkedHashMap<String, Object> selectWithdrawDetail(Integer withdrawId);
+
+    /**
      * 管理员审核提现申请
      *
      * @param withdrawInfo 提现记录

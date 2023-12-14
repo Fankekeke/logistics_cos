@@ -49,6 +49,17 @@ public class StaffInfoController {
     }
 
     /**
+     * 获取ID获取员工详情
+     *
+     * @param id 主键
+     * @return 结果
+     */
+    @GetMapping("/detail/{id}")
+    public R detailByUserId(@PathVariable("id") Integer id) {
+        return R.ok(staffInfoService.getOne(Wrappers.<StaffInfo>lambdaQuery().eq(StaffInfo::getUserId, id)));
+    }
+
+    /**
      * 获取员工信息列表
      *
      * @return 结果

@@ -1,70 +1,33 @@
 <template>
-  <a-modal v-model="show" title="菜品详情" @cancel="onClose" :width="1000">
+  <a-modal v-model="show" title="提现记录详情" @cancel="onClose" :width="1000">
     <template slot="footer">
       <a-button key="back" @click="onClose" type="danger">
         关闭
       </a-button>
     </template>
-    <div style="font-size: 13px;font-family: SimHei" v-if="dishesData !== null">
+    <div style="font-size: 13px;font-family: SimHei" v-if="withdrawData !== null">
       <a-row style="padding-left: 24px;padding-right: 24px;">
         <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">基础信息</span></a-col>
-        <a-col :span="8"><b>菜品编号：</b>
-          {{ dishesData.code }}
+        <a-col :span="8"><b>员工编号：</b>
+          {{ withdrawData.code }}
         </a-col>
-        <a-col :span="8"><b>菜品名称：</b>
-          {{ dishesData.name ? dishesData.name : '- -' }}
-        </a-col>
-        <a-col :span="8"><b>原料：</b>
-          {{ dishesData.rawMaterial ? dishesData.rawMaterial : '- -' }}
-        </a-col>
-      </a-row>
-      <br/>
-      <a-row style="padding-left: 24px;padding-right: 24px;">
-        <a-col :span="8"><b>份量：</b>
-          {{ dishesData.portion }}
-        </a-col>
-        <a-col :span="8"><b>口味：</b>
-          {{ dishesData.taste }}
-        </a-col>
-        <a-col :span="8"><b>价格：</b>
-          {{ dishesData.unitPrice }} 元
-        </a-col>
-      </a-row>
-      <br/>
-      <a-row style="padding-left: 24px;padding-right: 24px;">
-        <a-col :span="8"><b>销量：</b>
-          {{ dishesData.saleNum }}
-        </a-col>
-        <a-col :span="8"><b>上架状态：</b>
-          <span v-if="dishesData.status == 0" style="color: red">下架</span>
-          <span v-if="dishesData.status == 1" style="color: green">上架</span>
-        </a-col>
-        <a-col :span="8"><b>创建时间：</b>
-          {{ dishesData.createDate }}
-        </a-col>
-      </a-row>
-      <br/>
-      <a-row style="padding-left: 24px;padding-right: 24px;">
-        <a-col :span="8"><b>热量：</b>
-          {{ dishesData.heat }}
-        </a-col>
-        <a-col :span="8"><b>蛋白质：</b>
-          {{ dishesData.protein }}
-        </a-col>
-        <a-col :span="8"><b>脂肪：</b>
-          {{ dishesData.fat }}
-        </a-col>
-      </a-row>
-      <br/>
-      <a-row style="padding-left: 24px;padding-right: 24px;">
-        <a-col :span="8"><b>所属商家：</b>
-          {{ dishesData.merchantName }}
-        </a-col>
-        <a-col :span="8"><b>联系人：</b>
-          {{ dishesData.principal }}
+        <a-col :span="8"><b>员工姓名：</b>
+          {{ withdrawData.name ? withdrawData.name : '- -' }}
         </a-col>
         <a-col :span="8"><b>联系方式：</b>
-          {{ dishesData.phone }}
+          {{ withdrawData.phone ? withdrawData.phone : '- -' }}
+        </a-col>
+      </a-row>
+      <br/>
+      <a-row style="padding-left: 24px;padding-right: 24px;">
+        <a-col :span="8"><b>提现金额：</b>
+          {{ withdrawData.withdrawPrice }} 元
+        </a-col>
+        <a-col :span="8"><b>账户余额：</b>
+          {{ withdrawData.accountPrice }} 元
+        </a-col>
+        <a-col :span="8"><b>申请时间：</b>
+          {{ withdrawData.createDate }}
         </a-col>
       </a-row>
       <br/>
@@ -102,20 +65,20 @@ function getBase64 (file) {
   })
 }
 export default {
-  name: 'dishesView',
+  name: 'withdrawView',
   props: {
-    dishesShow: {
+    withdrawShow: {
       type: Boolean,
       default: false
     },
-    dishesData: {
+    withdrawData: {
       type: Object
     }
   },
   computed: {
     show: {
       get: function () {
-        return this.dishesShow
+        return this.withdrawShow
       },
       set: function () {
       }
@@ -135,18 +98,18 @@ export default {
     }
   },
   watch: {
-    dishesShow: function (value) {
+    withdrawShow: function (value) {
       if (value) {
-        this.imagesInit(this.dishesData.images)
+        this.imagesInit(this.withdrawData.images)
       }
     }
   },
   methods: {
-    local (dishesData) {
+    local (withdrawData) {
       baiduMap.clearOverlays()
       baiduMap.rMap().enableScrollWheelZoom(true)
       // eslint-disable-next-line no-undef
-      let point = new BMap.Point(dishesData.longitude, dishesData.latitude)
+      let point = new BMap.Point(withdrawData.longitude, withdrawData.latitude)
       baiduMap.pointAdd(point)
       baiduMap.findPoint(point, 16)
       // let driving = new BMap.DrivingRoute(baiduMap.rMap(), {renderOptions:{map: baiduMap.rMap(), autoViewport: true}});

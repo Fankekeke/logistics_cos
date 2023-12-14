@@ -1,5 +1,5 @@
 <template>
-  <a-modal v-model="show" title="修改菜品" @cancel="onClose" :width="800">
+  <a-modal v-model="show" title="修改提现记录" @cancel="onClose" :width="800">
     <template slot="footer">
       <a-button key="back" @click="onClose">
         取消
@@ -11,10 +11,10 @@
     <a-form :form="form" layout="vertical">
       <a-row :gutter="20">
         <a-col :span="12">
-          <a-form-item label='菜品名称' v-bind="formItemLayout">
+          <a-form-item label='提现记录名称' v-bind="formItemLayout">
             <a-input v-decorator="[
             'name',
-            { rules: [{ required: true, message: '请输入菜品名称!' }] }
+            { rules: [{ required: true, message: '请输入提现记录名称!' }] }
             ]"/>
           </a-form-item>
         </a-col>
@@ -51,10 +51,10 @@
           </a-form-item>
         </a-col>
         <a-col :span="12">
-          <a-form-item label='菜品状态' v-bind="formItemLayout">
+          <a-form-item label='提现记录状态' v-bind="formItemLayout">
             <a-select v-decorator="[
               'status',
-              { rules: [{ required: true, message: '请输入菜品状态!' }] }
+              { rules: [{ required: true, message: '请输入提现记录状态!' }] }
               ]">
               <a-select-option value="0">下架</a-select-option>
               <a-select-option value="1">上架</a-select-option>
@@ -86,10 +86,10 @@
           </a-form-item>
         </a-col>
         <a-col :span="24">
-          <a-form-item label='菜品描述' v-bind="formItemLayout">
+          <a-form-item label='提现记录描述' v-bind="formItemLayout">
             <a-textarea :rows="6" v-decorator="[
             'content',
-             { rules: [{ required: true, message: '请输入菜品描述!' }] }
+             { rules: [{ required: true, message: '请输入提现记录描述!' }] }
             ]"/>
           </a-form-item>
         </a-col>
@@ -135,9 +135,9 @@ const formItemLayout = {
   wrapperCol: { span: 24 }
 }
 export default {
-  name: 'dishesEdit',
+  name: 'withdrawEdit',
   props: {
-    dishesEditVisiable: {
+    withdrawEditVisiable: {
       default: false
     }
   },
@@ -147,7 +147,7 @@ export default {
     }),
     show: {
       get: function () {
-        return this.dishesEditVisiable
+        return this.withdrawEditVisiable
       },
       set: function () {
       }
@@ -187,21 +187,21 @@ export default {
         this.fileList = imageList
       }
     },
-    setFormValues ({...dishes}) {
-      this.rowId = dishes.id
+    setFormValues ({...withdraw}) {
+      this.rowId = withdraw.id
       let fields = ['name', 'content', 'rawMaterial', 'portion', 'taste', 'unitPrice', 'status', 'heat', 'protein', 'fat']
       let obj = {}
-      Object.keys(dishes).forEach((key) => {
+      Object.keys(withdraw).forEach((key) => {
         if (key === 'images') {
           this.fileList = []
-          this.imagesInit(dishes['images'])
+          this.imagesInit(withdraw['images'])
         }
         if (key === 'status') {
-          dishes[key] = dishes[key].toString()
+          withdraw[key] = withdraw[key].toString()
         }
         if (fields.indexOf(key) !== -1) {
           this.form.getFieldDecorator(key)
-          obj[key] = dishes[key]
+          obj[key] = withdraw[key]
         }
       })
       this.form.setFieldsValue(obj)
@@ -229,7 +229,7 @@ export default {
         values.images = images.length > 0 ? images.join(',') : null
         if (!err) {
           this.loading = true
-          this.$put('/cos/dishes-info', {
+          this.$put('/cos/withdraw-info', {
             ...values
           }).then((r) => {
             this.reset()

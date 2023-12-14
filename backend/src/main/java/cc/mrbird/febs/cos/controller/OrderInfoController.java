@@ -60,6 +60,17 @@ public class OrderInfoController {
     }
 
     /**
+     * 提现记录详情
+     *
+     * @param withdrawId 提现记录ID
+     * @return 结果
+     */
+    @GetMapping("/withdraw/{id}")
+    public R selectWithdrawDetail(@PathVariable("id") Integer withdrawId) {
+        return R.ok(orderInfoService.selectWithdrawDetail(withdrawId));
+    }
+
+    /**
      * 管理员审核提现申请
      *
      * @param withdrawInfo 提现记录

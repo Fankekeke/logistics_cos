@@ -1,5 +1,5 @@
 <template>
-  <a-modal v-model="show" title="新增菜品" @cancel="onClose" :width="800">
+  <a-modal v-model="show" title="新增提现记录" @cancel="onClose" :width="800">
     <template slot="footer">
       <a-button key="back" @click="onClose">
         取消
@@ -11,108 +11,19 @@
     <a-form :form="form" layout="vertical">
       <a-row :gutter="20">
         <a-col :span="12">
-          <a-form-item label='菜品名称' v-bind="formItemLayout">
-            <a-input v-decorator="[
-            'name',
-            { rules: [{ required: true, message: '请输入菜品名称!' }] }
-            ]"/>
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item label='原料' v-bind="formItemLayout">
-            <a-input v-decorator="[
-            'rawMaterial',
-            { rules: [{ required: true, message: '请输入原料!' }] }
-            ]"/>
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item label='份量' v-bind="formItemLayout">
+          <a-form-item label='账户余额' v-bind="formItemLayout">
             <a-input-number style="width: 100%" v-decorator="[
-            'portion',
-            { rules: [{ required: true, message: '请输入份量!' }] }
-            ]" :min="1" :step="1"/>
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item label='口味' v-bind="formItemLayout">
-            <a-input v-decorator="[
-            'taste',
-            { rules: [{ required: true, message: '请输入口味!' }] }
-            ]"/>
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item label='价格' v-bind="formItemLayout">
-            <a-input-number style="width: 100%" v-decorator="[
-            'unitPrice',
+            'accountPrice',
             { rules: [{ required: true, message: '请输入价格!' }] }
             ]" :min="0.1" :step="0.1"/>
           </a-form-item>
         </a-col>
         <a-col :span="12">
-          <a-form-item label='菜品状态' v-bind="formItemLayout">
-            <a-select v-decorator="[
-              'status',
-              { rules: [{ required: true, message: '请输入菜品状态!' }] }
-              ]">
-              <a-select-option value="0">下架</a-select-option>
-              <a-select-option value="1">上架</a-select-option>
-            </a-select>
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item label='热量含量' v-bind="formItemLayout">
+          <a-form-item label='提现金额' v-bind="formItemLayout">
             <a-input-number style="width: 100%" v-decorator="[
-            'heat',
-            { rules: [{ required: true, message: '请输入热量含量!' }] }
+            'unitPrice',
+            { rules: [{ required: true, message: '请输入价格!' }] }
             ]" :min="0.1" :step="0.1"/>
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item label='蛋白质含量' v-bind="formItemLayout">
-            <a-input-number style="width: 100%" v-decorator="[
-            'protein',
-            { rules: [{ required: true, message: '请输入蛋白质含量!' }] }
-            ]" :min="0.1" :step="0.1"/>
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item label='脂肪含量' v-bind="formItemLayout">
-            <a-input-number style="width: 100%" v-decorator="[
-            'fat',
-            { rules: [{ required: true, message: '请输入脂肪含量!' }] }
-            ]" :min="0.1" :step="0.1"/>
-          </a-form-item>
-        </a-col>
-        <a-col :span="24">
-          <a-form-item label='菜品描述' v-bind="formItemLayout">
-            <a-textarea :rows="6" v-decorator="[
-            'content',
-             { rules: [{ required: true, message: '请输入菜品描述!' }] }
-            ]"/>
-          </a-form-item>
-        </a-col>
-        <a-col :span="24">
-          <a-form-item label='图册' v-bind="formItemLayout">
-            <a-upload
-              name="avatar"
-              action="http://127.0.0.1:9527/file/fileUpload/"
-              list-type="picture-card"
-              :file-list="fileList"
-              @preview="handlePreview"
-              @change="picHandleChange"
-            >
-              <div v-if="fileList.length < 8">
-                <a-icon type="plus" />
-                <div class="ant-upload-text">
-                  Upload
-                </div>
-              </div>
-            </a-upload>
-            <a-modal :visible="previewVisible" :footer="null" @cancel="handleCancel">
-              <img alt="example" style="width: 100%" :src="previewImage" />
-            </a-modal>
           </a-form-item>
         </a-col>
       </a-row>
@@ -135,9 +46,9 @@ const formItemLayout = {
   wrapperCol: { span: 24 }
 }
 export default {
-  name: 'dishesAdd',
+  name: 'withdrawAdd',
   props: {
-    dishesAddVisiable: {
+    withdrawAddVisiable: {
       default: false
     }
   },
@@ -147,7 +58,7 @@ export default {
     }),
     show: {
       get: function () {
-        return this.dishesAddVisiable
+        return this.withdrawAddVisiable
       },
       set: function () {
       }
@@ -160,10 +71,20 @@ export default {
       loading: false,
       fileList: [],
       previewVisible: false,
-      previewImage: ''
+      previewImage: '',
+      staffInfo: null
     }
   },
+  mounted () {
+    this.getStaff()
+  },
   methods: {
+    getStaff () {
+      this.$get(`/cos/staff-info/detail/${this.currentUser.userId}`).then((r) => {
+        this.staffInfo = r.data.data
+        this.form.setFieldsValue({'accountPrice': this.staffInfo.price})
+      })
+    },
     handleCancel () {
       this.previewVisible = false
     },
@@ -196,7 +117,8 @@ export default {
         values.images = images.length > 0 ? images.join(',') : null
         if (!err) {
           this.loading = true
-          this.$post('/cos/dishes-info', {
+          values.staffId = this.currentUser.userId
+          this.$post('/cos/withdraw-info', {
             ...values
           }).then((r) => {
             this.reset()

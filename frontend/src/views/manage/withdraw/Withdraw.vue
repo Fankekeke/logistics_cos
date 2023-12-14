@@ -7,7 +7,7 @@
           <div :class="advanced ? null: 'fold'">
             <a-col :md="6" :sm="24">
               <a-form-item
-                label="菜品编号"
+                label="员工编号"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
                 <a-input v-model="queryParams.code"/>
@@ -15,18 +15,22 @@
             </a-col>
             <a-col :md="6" :sm="24">
               <a-form-item
-                label="菜品名称"
+                label="员工姓名"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
-                <a-input v-model="queryParams.name"/>
+                <a-input v-model="queryParams.staffName"/>
               </a-form-item>
             </a-col>
             <a-col :md="6" :sm="24">
               <a-form-item
-                label="商家名称"
+                label="提现状态"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
-                <a-input v-model="queryParams.merchantName"/>
+                <a-select v-model="queryParams.status" allowClear>
+                  <a-select-option value="0">待审核</a-select-option>
+                  <a-select-option value="1">通过</a-select-option>
+                  <a-select-option value="2">驳回</a-select-option>
+                </a-select>
               </a-form-item>
             </a-col>
           </div>
@@ -54,52 +58,52 @@
                @change="handleTableChange">
         <template slot="operation" slot-scope="text, record">
           <a-icon type="setting" theme="twoTone" twoToneColor="#4a9ff5" @click="edit(record)" title="修 改"></a-icon>
-          <a-icon type="file-search" @click="dishesViewOpen(record)" title="详 情" style="margin-left: 15px"></a-icon>
+          <a-icon type="file-search" @click="withdrawViewOpen(record)" title="详 情" style="margin-left: 15px"></a-icon>
         </template>
       </a-table>
     </div>
-    <dishes-add
-      v-if="dishesAdd.visiable"
-      @close="handledishesAddClose"
-      @success="handledishesAddSuccess"
-      :dishesAddVisiable="dishesAdd.visiable">
-    </dishes-add>
-    <dishes-edit
-      ref="dishesEdit"
-      @close="handledishesEditClose"
-      @success="handledishesEditSuccess"
-      :dishesEditVisiable="dishesEdit.visiable">
-    </dishes-edit>
-    <dishes-view
-      @close="handledishesViewClose"
-      :dishesShow="dishesView.visiable"
-      :dishesData="dishesView.data">
-    </dishes-view>
+    <withdraw-add
+      v-if="withdrawAdd.visiable"
+      @close="handlewithdrawAddClose"
+      @success="handlewithdrawAddSuccess"
+      :withdrawAddVisiable="withdrawAdd.visiable">
+    </withdraw-add>
+    <withdraw-edit
+      ref="withdrawEdit"
+      @close="handlewithdrawEditClose"
+      @success="handlewithdrawEditSuccess"
+      :withdrawEditVisiable="withdrawEdit.visiable">
+    </withdraw-edit>
+    <withdraw-view
+      @close="handlewithdrawViewClose"
+      :withdrawShow="withdrawView.visiable"
+      :withdrawData="withdrawView.data">
+    </withdraw-view>
   </a-card>
 </template>
 
 <script>
 import RangeDate from '@/components/datetime/RangeDate'
-import dishesAdd from './WithdrawAdd'
-import dishesEdit from './WithdrawEdit'
-import dishesView from './WithdrawView.vue'
+import withdrawAdd from './WithdrawAdd'
+import withdrawEdit from './WithdrawEdit'
+import withdrawView from './WithdrawView.vue'
 import {mapState} from 'vuex'
 import moment from 'moment'
 moment.locale('zh-cn')
 
 export default {
-  name: 'dishes',
-  components: {dishesAdd, dishesEdit, dishesView, RangeDate},
+  name: 'withdraw',
+  components: {withdrawAdd, withdrawEdit, withdrawView, RangeDate},
   data () {
     return {
       advanced: false,
-      dishesAdd: {
+      withdrawAdd: {
         visiable: false
       },
-      dishesEdit: {
+      withdrawEdit: {
         visiable: false
       },
-      dishesView: {
+      withdrawView: {
         visiable: false,
         data: null
       },
@@ -127,13 +131,13 @@ export default {
     }),
     columns () {
       return [{
-        title: '菜品编号',
+        title: '员工编号',
         dataIndex: 'code'
       }, {
-        title: '菜品名称',
+        title: '员工姓名',
         dataIndex: 'name'
       }, {
-        title: '菜品图片',
+        title: '照片',
         dataIndex: 'images',
         customRender: (text, record, index) => {
           if (!record.images) return <a-avatar shape="square" icon="user" />
@@ -145,8 +149,8 @@ export default {
           </a-popover>
         }
       }, {
-        title: '商家名称',
-        dataIndex: 'merchantName',
+        title: '联系方式',
+        dataIndex: 'phone',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text
@@ -155,20 +159,8 @@ export default {
           }
         }
       }, {
-        title: '商家图片',
-        dataIndex: 'merchantImages',
-        customRender: (text, record, index) => {
-          if (!record.merchantImages) return <a-avatar shape="square" icon="user" />
-          return <a-popover>
-            <template slot="content">
-              <a-avatar shape="square" size={132} icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.merchantImages.split(',')[0] } />
-            </template>
-            <a-avatar shape="square" icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.merchantImages.split(',')[0] } />
-          </a-popover>
-        }
-      }, {
-        title: '原料',
-        dataIndex: 'rawMaterial',
+        title: '提现金额',
+        dataIndex: 'withdrawPrice',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text
@@ -177,8 +169,8 @@ export default {
           }
         }
       }, {
-        title: '份量',
-        dataIndex: 'portion',
+        title: '账户余额',
+        dataIndex: 'accountPrice',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text
@@ -187,41 +179,23 @@ export default {
           }
         }
       }, {
-        title: '口味',
-        dataIndex: 'taste',
-        customRender: (text, row, index) => {
-          if (text !== null) {
-            return text
-          } else {
-            return '- -'
-          }
-        }
-      }, {
-        title: '价格',
-        dataIndex: 'unitPrice',
-        customRender: (text, row, index) => {
-          if (text !== null) {
-            return text + '元'
-          } else {
-            return '- -'
-          }
-        }
-      }, {
-        title: '状态',
+        title: '审核状态',
         dataIndex: 'status',
         customRender: (text, row, index) => {
           switch (text) {
             case '0':
-              return <a-tag color="red">下架</a-tag>
+              return <a-tag>待审核</a-tag>
             case '1':
-              return <a-tag color="green">上架</a-tag>
+              return <a-tag color="green">通过</a-tag>
+            case '2':
+              return <a-tag color="red">驳回</a-tag>
             default:
               return '- -'
           }
         }
       }, {
-        title: '销量',
-        dataIndex: 'saleNum',
+        title: '创建时间',
+        dataIndex: 'createDate',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text
@@ -240,12 +214,12 @@ export default {
     this.fetch()
   },
   methods: {
-    dishesViewOpen (row) {
-      this.dishesView.data = row
-      this.dishesView.visiable = true
+    withdrawViewOpen (row) {
+      this.withdrawView.data = row
+      this.withdrawView.visiable = true
     },
-    handledishesViewClose () {
-      this.dishesView.visiable = false
+    handlewithdrawViewClose () {
+      this.withdrawView.visiable = false
     },
     onSelectChange (selectedRowKeys) {
       this.selectedRowKeys = selectedRowKeys
@@ -254,26 +228,26 @@ export default {
       this.advanced = !this.advanced
     },
     add () {
-      this.dishesAdd.visiable = true
+      this.withdrawAdd.visiable = true
     },
-    handledishesAddClose () {
-      this.dishesAdd.visiable = false
+    handlewithdrawAddClose () {
+      this.withdrawAdd.visiable = false
     },
-    handledishesAddSuccess () {
-      this.dishesAdd.visiable = false
-      this.$message.success('新增菜品成功')
+    handlewithdrawAddSuccess () {
+      this.withdrawAdd.visiable = false
+      this.$message.success('新增提现记录成功')
       this.search()
     },
     edit (record) {
-      this.$refs.dishesEdit.setFormValues(record)
-      this.dishesEdit.visiable = true
+      this.$refs.withdrawEdit.setFormValues(record)
+      this.withdrawEdit.visiable = true
     },
-    handledishesEditClose () {
-      this.dishesEdit.visiable = false
+    handlewithdrawEditClose () {
+      this.withdrawEdit.visiable = false
     },
-    handledishesEditSuccess () {
-      this.dishesEdit.visiable = false
-      this.$message.success('修改菜品成功')
+    handlewithdrawEditSuccess () {
+      this.withdrawEdit.visiable = false
+      this.$message.success('修改提现记录成功')
       this.search()
     },
     handleDeptChange (value) {
@@ -291,7 +265,7 @@ export default {
         centered: true,
         onOk () {
           let ids = that.selectedRowKeys.join(',')
-          that.$delete('/cos/dishes-info/' + ids).then(() => {
+          that.$delete('/cos/withdraw-info/' + ids).then(() => {
             that.$message.success('删除成功')
             that.selectedRowKeys = []
             that.search()
@@ -361,7 +335,7 @@ export default {
         params.size = this.pagination.defaultPageSize
         params.current = this.pagination.defaultCurrent
       }
-      this.$get('/cos/dishes-info/page', {
+      this.$get('/cos/withdraw-info/page', {
         ...params
       }).then((r) => {
         let data = r.data.data
