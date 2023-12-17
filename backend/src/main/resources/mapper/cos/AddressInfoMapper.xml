@@ -17,6 +17,7 @@
             ai.user_id,
             ai.longitude,
             ai.latitude,
+            ai.house_number,
             ui.name,
             ui.code as userCode,
             ui.images

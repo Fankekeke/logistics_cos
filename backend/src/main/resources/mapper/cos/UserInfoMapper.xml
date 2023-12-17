@@ -17,7 +17,6 @@
         user_id,
         create_date,
         images,
-        is_member,
         integral
         from
         user_info

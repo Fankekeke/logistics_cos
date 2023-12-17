@@ -19,8 +19,8 @@
           </a-form-item>
         </a-col>
         <a-col :span="12">
-          <a-form-item label='优惠券类型' v-bind="formItemLayout" @change="handleChange">
-            <a-select v-decorator="[
+          <a-form-item label='优惠券类型' v-bind="formItemLayout">
+            <a-select @change="handleChange" v-decorator="[
               'type',
               { rules: [{ required: true, message: '请输入优惠券类型!' }] }
               ]">
@@ -158,7 +158,7 @@ export default {
     },
     setFormValues ({...discount}) {
       this.rowId = discount.id
-      let fields = ['discountPrice', 'threshold', 'couponName', 'rebate', 'type', 'content']
+      let fields = ['discountPrice', 'threshold', 'couponName', 'rebate', 'type', 'content', 'userId']
       let obj = {}
       Object.keys(discount).forEach((key) => {
         if (key === 'images') {
@@ -168,6 +168,10 @@ export default {
         if (key === 'status') {
           discount[key] = discount[key].toString()
         }
+        if (key === 'type') {
+          this.discountType = discount[key].toString()
+        }
+
         if (fields.indexOf(key) !== -1) {
           this.form.getFieldDecorator(key)
           obj[key] = discount[key]

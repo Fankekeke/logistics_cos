@@ -84,6 +84,11 @@ public class AddressInfo implements Serializable {
      */
     private BigDecimal latitude;
 
+    /**
+     * 门牌号
+     */
+    private String houseNumber;
+
     @TableField(exist = false)
     private String name;
 
