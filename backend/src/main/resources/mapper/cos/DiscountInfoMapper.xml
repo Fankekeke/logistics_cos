@@ -36,6 +36,9 @@
         <if test="discountInfo.status != null and discountInfo.status != ''">
             AND di.status = #{discountInfo.status}
         </if>
+        <if test="discountInfo.userId != null and discountInfo.userId != ''">
+            AND ui.user_id = #{discountInfo.userId}
+        </if>
         order by di.create_date desc
 
     </select>

@@ -146,16 +146,6 @@ export default {
           }
         }
       }, {
-        title: '收货地址',
-        dataIndex: 'address',
-        customRender: (text, row, index) => {
-          if (text !== null) {
-            return text
-          } else {
-            return '- -'
-          }
-        }
-      }, {
         title: '消耗积分',
         dataIndex: 'integral',
         customRender: (text, row, index) => {

@@ -7,7 +7,7 @@
           <div :class="advanced ? null: 'fold'">
             <a-col :md="6" :sm="24">
               <a-form-item
-                label="物品编号"
+                label="优惠券编号"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
                 <a-input v-model="queryParams.code"/>
@@ -15,10 +15,32 @@
             </a-col>
             <a-col :md="6" :sm="24">
               <a-form-item
-                label="物品名称"
+                label="用户名称"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
-                <a-input v-model="queryParams.name"/>
+                <a-input v-model="queryParams.userName"/>
+              </a-form-item>
+            </a-col>
+            <a-col :md="6" :sm="24">
+              <a-form-item
+                label="优惠券类型"
+                :labelCol="{span: 5}"
+                :wrapperCol="{span: 18, offset: 1}">
+                <a-select v-model="queryParams.type" allowClear>
+                  <a-select-option value="1">满减</a-select-option>
+                  <a-select-option value="2">折扣</a-select-option>
+                </a-select>
+              </a-form-item>
+            </a-col>
+            <a-col :md="6" :sm="24">
+              <a-form-item
+                label="状态"
+                :labelCol="{span: 5}"
+                :wrapperCol="{span: 18, offset: 1}">
+                <a-select v-model="queryParams.status" allowClear>
+                  <a-select-option value="0">未使用</a-select-option>
+                  <a-select-option value="1">已使用</a-select-option>
+                </a-select>
               </a-form-item>
             </a-col>
           </div>
@@ -31,7 +53,8 @@
     </div>
     <div>
       <div class="operator">
-        <span style="margin: 12px;font-weight: 800;font-family: SimHei">我的积分： {{ integral }}</span>
+<!--        <a-button type="primary" ghost @click="add">新增</a-button>-->
+        <a-button @click="batchDelete">删除</a-button>
       </div>
       <!-- 表格区域 -->
       <a-table ref="TableInfo"
@@ -43,56 +66,56 @@
                :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
                :scroll="{ x: 900 }"
                @change="handleTableChange">
-        <template slot="contentShow" slot-scope="text, record">
-          <template>
-            <a-tooltip>
-              <template slot="title">
-                {{ record.content }}
-              </template>
-              {{ record.content.slice(0, 40) }} ...
-            </a-tooltip>
-          </template>
-        </template>
         <template slot="operation" slot-scope="text, record">
-          <a-icon v-if="integral >= record.integral" type="retweet" @click="exchangeOrder(record)" title="兑 换"></a-icon>
+<!--          <a-icon type="setting" theme="twoTone" twoToneColor="#4a9ff5" @click="edit(record)" title="修 改"></a-icon>-->
+          <a-icon type="file-search" @click="discountViewOpen(record)" title="详 情" style="margin-left: 15px"></a-icon>
         </template>
       </a-table>
     </div>
-    <material-add
-      v-if="materialAdd.visiable"
-      @close="handlematerialAddClose"
-      @success="handlematerialAddSuccess"
-      :materialAddVisiable="materialAdd.visiable">
-    </material-add>
-    <material-edit
-      ref="materialEdit"
-      @close="handlematerialEditClose"
-      @success="handlematerialEditSuccess"
-      :materialEditVisiable="materialEdit.visiable">
-    </material-edit>
+    <discount-add
+      v-if="discountAdd.visiable"
+      @close="handlediscountAddClose"
+      @success="handlediscountAddSuccess"
+      :discountAddVisiable="discountAdd.visiable">
+    </discount-add>
+    <discount-edit
+      ref="discountEdit"
+      @close="handlediscountEditClose"
+      @success="handlediscountEditSuccess"
+      :discountEditVisiable="discountEdit.visiable">
+    </discount-edit>
+    <discount-view
+      @close="handlediscountViewClose"
+      :discountShow="discountView.visiable"
+      :discountData="discountView.data">
+    </discount-view>
   </a-card>
 </template>
 
 <script>
 import RangeDate from '@/components/datetime/RangeDate'
-import materialAdd from './MaterialAdd'
-import materialEdit from './MaterialEdit'
+import discountAdd from './DiscountAdd'
+import discountEdit from './DiscountEdit'
+import discountView from './DiscountView.vue'
 import {mapState} from 'vuex'
 import moment from 'moment'
 moment.locale('zh-cn')
 
 export default {
-  name: 'material',
-  components: {materialAdd, materialEdit, RangeDate},
+  name: 'discount',
+  components: {discountAdd, discountEdit, discountView, RangeDate},
   data () {
     return {
-      integral: 0,
       advanced: false,
-      materialAdd: {
+      discountAdd: {
         visiable: false
       },
-      materialEdit: {
+      discountEdit: {
         visiable: false
+      },
+      discountView: {
+        visiable: false,
+        data: null
       },
       queryParams: {},
       filteredInfo: null,
@@ -118,13 +141,33 @@ export default {
     }),
     columns () {
       return [{
-        title: '物品编号',
+        title: '优惠券编号',
         dataIndex: 'code'
       }, {
-        title: '物品名称',
-        dataIndex: 'name'
+        title: '优惠券名称',
+        dataIndex: 'couponName'
       }, {
-        title: '物品图片',
+        title: '用户名称',
+        dataIndex: 'userName',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text
+          } else {
+            return '- -'
+          }
+        }
+      }, {
+        title: '联系方式',
+        dataIndex: 'phone',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text
+          } else {
+            return '- -'
+          }
+        }
+      }, {
+        title: '用户头像',
         dataIndex: 'images',
         customRender: (text, record, index) => {
           if (!record.images) return <a-avatar shape="square" icon="user" />
@@ -136,31 +179,33 @@ export default {
           </a-popover>
         }
       }, {
-        title: '物品描述',
-        dataIndex: 'content',
-        scopedSlots: {customRender: 'contentShow'}
-      }, {
-        title: '所需积分',
-        dataIndex: 'integral',
+        title: '状态',
+        dataIndex: 'status',
         customRender: (text, row, index) => {
-          if (text !== null) {
-            return text
-          } else {
-            return '- -'
+          switch (text) {
+            case '0':
+              return <a-tag color="green">未使用</a-tag>
+            case '1':
+              return <a-tag color="red">已使用</a-tag>
+            default:
+              return '- -'
           }
         }
       }, {
-        title: '销量',
-        dataIndex: 'saleNum',
+        title: '优惠券类型',
+        dataIndex: 'type',
         customRender: (text, row, index) => {
-          if (text !== null) {
-            return text
-          } else {
-            return '- -'
+          switch (text) {
+            case '0':
+              return <a-tag>满减</a-tag>
+            case '1':
+              return <a-tag>折扣</a-tag>
+            default:
+              return '- -'
           }
         }
       }, {
-        title: '创建时间',
+        title: '发放时间',
         dataIndex: 'createDate',
         customRender: (text, row, index) => {
           if (text !== null) {
@@ -178,24 +223,14 @@ export default {
   },
   mounted () {
     this.fetch()
-    this.selectDetailByUserId()
   },
   methods: {
-    exchangeOrder (row) {
-      this.$post(`/cos/exchange-info`, {
-        materialId: row.id,
-        userId: this.currentUser.userId,
-        integral: row.integral
-      }).then((r) => {
-        this.$message.success('兑换物品成功')
-        this.selectDetailByUserId()
-        this.fetch()
-      })
+    discountViewOpen (row) {
+      this.discountView.data = row
+      this.discountView.visiable = true
     },
-    selectDetailByUserId () {
-      this.$get(`/cos/user-info/detailByUserId/${this.currentUser.userId}`).then((r) => {
-        this.integral = r.data.data.integral
-      })
+    handlediscountViewClose () {
+      this.discountView.visiable = false
     },
     onSelectChange (selectedRowKeys) {
       this.selectedRowKeys = selectedRowKeys
@@ -204,26 +239,26 @@ export default {
       this.advanced = !this.advanced
     },
     add () {
-      this.materialAdd.visiable = true
+      this.discountAdd.visiable = true
     },
-    handlematerialAddClose () {
-      this.materialAdd.visiable = false
+    handlediscountAddClose () {
+      this.discountAdd.visiable = false
     },
-    handlematerialAddSuccess () {
-      this.materialAdd.visiable = false
-      this.$message.success('新增物品成功')
+    handlediscountAddSuccess () {
+      this.discountAdd.visiable = false
+      this.$message.success('新增优惠券成功')
       this.search()
     },
     edit (record) {
-      this.$refs.materialEdit.setFormValues(record)
-      this.materialEdit.visiable = true
+      this.$refs.discountEdit.setFormValues(record)
+      this.discountEdit.visiable = true
     },
-    handlematerialEditClose () {
-      this.materialEdit.visiable = false
+    handlediscountEditClose () {
+      this.discountEdit.visiable = false
     },
-    handlematerialEditSuccess () {
-      this.materialEdit.visiable = false
-      this.$message.success('修改物品成功')
+    handlediscountEditSuccess () {
+      this.discountEdit.visiable = false
+      this.$message.success('修改优惠券成功')
       this.search()
     },
     handleDeptChange (value) {
@@ -241,7 +276,7 @@ export default {
         centered: true,
         onOk () {
           let ids = that.selectedRowKeys.join(',')
-          that.$delete('/cos/material-info/' + ids).then(() => {
+          that.$delete('/cos/discount-info/' + ids).then(() => {
             that.$message.success('删除成功')
             that.selectedRowKeys = []
             that.search()
@@ -311,7 +346,8 @@ export default {
         params.size = this.pagination.defaultPageSize
         params.current = this.pagination.defaultCurrent
       }
-      this.$get('/cos/material-info/page', {
+      params.userId = this.currentUser.userId
+      this.$get('/cos/discount-info/page', {
         ...params
       }).then((r) => {
         let data = r.data.data
