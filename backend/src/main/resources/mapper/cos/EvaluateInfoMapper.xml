@@ -8,7 +8,6 @@
             ei.id,
             ei.order_id,
             ei.user_id,
-            ei.merchant_id,
             ei.content,
             ei.score,
             ei.create_date,

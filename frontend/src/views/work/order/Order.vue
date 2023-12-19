@@ -23,10 +23,10 @@
             </a-col>
             <a-col :md="6" :sm="24">
               <a-form-item
-                label="商家名称"
+                label="订单名称"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
-                <a-input v-model="queryParams.merchantName"/>
+                <a-input v-model="queryParams.orderName"/>
               </a-form-item>
             </a-col>
           </div>
@@ -39,7 +39,7 @@
     </div>
     <div>
       <div class="operator">
-<!--        <a-button type="primary" ghost @click="add">添加订单</a-button>-->
+        <!--        <a-button type="primary" ghost @click="add">添加订单</a-button>-->
         <a-button @click="batchDelete">删除</a-button>
       </div>
       <!-- 表格区域 -->
@@ -56,16 +56,16 @@
           <template>
             <a-tooltip>
               <template slot="title">
-                {{ record.title }}
+                {{ record.remark }}
               </template>
-              {{ record.title.slice(0, 8) }} ...
+              {{ record.remark.slice(0, 10) }} ...
             </a-tooltip>
           </template>
         </template>
         <template slot="operation" slot-scope="text, record">
           <a-icon type="file-search" @click="orderViewOpen(record)" title="详 情"></a-icon>
-<!--          <a-icon v-if="record.status == 2" type="setting" theme="twoTone" twoToneColor="#4a9ff5" @click="orderComplete(record)" title="订单完成" style="margin-left: 15px"></a-icon>-->
-<!--          <a-icon v-if="record.taskShop == null && record.returnShop == null" type="setting" theme="twoTone" twoToneColor="#4a9ff5" @click="orderAuditOpen(record)" title="修 改" style="margin-left: 15px"></a-icon>-->
+          <!--          <a-icon v-if="record.status == 2" type="setting" theme="twoTone" twoToneColor="#4a9ff5" @click="orderComplete(record)" title="订单完成" style="margin-left: 15px"></a-icon>-->
+          <!--          <a-icon v-if="record.taskShop == null && record.returnShop == null" type="setting" theme="twoTone" twoToneColor="#4a9ff5" @click="orderAuditOpen(record)" title="修 改" style="margin-left: 15px"></a-icon>-->
           <a-icon v-if="record.type == 1" type="cluster" @click="orderMapOpen(record)" title="地 图" style="margin-left: 15px"></a-icon>
         </template>
       </a-table>
@@ -108,7 +108,7 @@ import OrderAdd from './OrderAdd'
 import OrderAudit from './OrderAudit'
 import OrderView from './OrderView'
 import OrderStatus from './OrderStatus.vue'
-import MapView from '../map/Map.vue'
+import MapView from '../../manage/map/Map.vue'
 moment.locale('zh-cn')
 
 export default {
@@ -188,8 +188,8 @@ export default {
           </a-popover>
         }
       }, {
-        title: '所属商家',
-        dataIndex: 'merchantName',
+        title: '联系方式',
+        dataIndex: 'phone',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text
@@ -198,15 +198,25 @@ export default {
           }
         }
       }, {
-        title: '商家图片',
-        dataIndex: 'merchantImages',
+        title: '订单名称',
+        dataIndex: 'orderName',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text
+          } else {
+            return '- -'
+          }
+        }
+      }, {
+        title: '物品图片',
+        dataIndex: 'images',
         customRender: (text, record, index) => {
-          if (!record.merchantImages) return <a-avatar shape="square" icon="user" />
+          if (!record.images) return <a-avatar shape="square" icon="user" />
           return <a-popover>
             <template slot="content">
-              <a-avatar shape="square" size={132} icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.merchantImages.split(',')[0] } />
+              <a-avatar shape="square" size={132} icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images.split(',')[0] } />
             </template>
-            <a-avatar shape="square" icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.merchantImages.split(',')[0] } />
+            <a-avatar shape="square" icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images.split(',')[0] } />
           </a-popover>
         }
       }, {
@@ -237,28 +247,19 @@ export default {
             case '0':
               return <a-tag color="red">未支付</a-tag>
             case '1':
-              return <a-tag>已支付</a-tag>
+              return <a-tag>待接单</a-tag>
             case '2':
               return <a-tag>配送中</a-tag>
             case '3':
-              return <a-tag>已收货</a-tag>
+              return <a-tag color="green">已收货</a-tag>
             default:
               return '- -'
           }
         }
       }, {
-        title: '订单类型',
-        dataIndex: 'type',
-        customRender: (text, row, index) => {
-          switch (text) {
-            case '0':
-              return <a-tag>堂食</a-tag>
-            case '1':
-              return <a-tag>外送</a-tag>
-            default:
-              return '- -'
-          }
-        }
+        title: '备注',
+        dataIndex: 'remark',
+        scopedSlots: {customRender: 'titleShow'}
       }, {
         title: '下单时间',
         dataIndex: 'createDate',

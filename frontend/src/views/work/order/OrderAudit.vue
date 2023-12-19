@@ -281,7 +281,7 @@ export default {
       })
     },
     selectStaffList () {
-      this.$get(`/cos/staff-info/selectStaffByMerchant/${this.currentUser.userId}`).then((r) => {
+      this.$get(`/cos/staff-info/list`).then((r) => {
         this.staffList = r.data.user
       })
     },

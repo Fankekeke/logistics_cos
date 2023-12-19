@@ -69,8 +69,6 @@ public class StaffInfo implements Serializable {
      */
     private BigDecimal price;
 
-    private Integer canteenId;
-
     @TableField(exist = false)
     private Integer merchantId;
 
