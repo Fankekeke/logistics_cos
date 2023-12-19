@@ -21,14 +21,6 @@
                 <a-input v-model="queryParams.orderCode"/>
               </a-form-item>
             </a-col>
-            <a-col :md="6" :sm="24">
-              <a-form-item
-                label="商家名称"
-                :labelCol="{span: 5}"
-                :wrapperCol="{span: 18, offset: 1}">
-                <a-input v-model="queryParams.merchantName"/>
-              </a-form-item>
-            </a-col>
           </div>
           <span style="float: right; margin-top: 3px;">
             <a-button type="primary" @click="search">查询</a-button>
@@ -187,16 +179,6 @@ export default {
             </template>
             <a-avatar shape="square" icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images.split(',')[0] } />
           </a-popover>
-        }
-      }, {
-        title: '所属商家',
-        dataIndex: 'merchantName',
-        customRender: (text, row, index) => {
-          if (text !== null) {
-            return text
-          } else {
-            return '- -'
-          }
         }
       }, {
         title: '获得积分',

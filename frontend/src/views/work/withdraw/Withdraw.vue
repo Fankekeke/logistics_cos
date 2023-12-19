@@ -7,18 +7,14 @@
           <div :class="advanced ? null: 'fold'">
             <a-col :md="6" :sm="24">
               <a-form-item
-                label="用户名称"
+                label="提现状态"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
-                <a-input v-model="queryParams.userName"/>
-              </a-form-item>
-            </a-col>
-            <a-col :md="6" :sm="24">
-              <a-form-item
-                label="订单编号"
-                :labelCol="{span: 5}"
-                :wrapperCol="{span: 18, offset: 1}">
-                <a-input v-model="queryParams.orderCode"/>
+                <a-select v-model="queryParams.status" allowClear>
+                  <a-select-option value="0">待审核</a-select-option>
+                  <a-select-option value="1">通过</a-select-option>
+                  <a-select-option value="2">驳回</a-select-option>
+                </a-select>
               </a-form-item>
             </a-col>
           </div>
@@ -31,6 +27,7 @@
     </div>
     <div>
       <div class="operator">
+<!--        <a-button type="primary" ghost @click="add">新增</a-button>-->
         <a-button @click="batchDelete">删除</a-button>
       </div>
       <!-- 表格区域 -->
@@ -43,49 +40,54 @@
                :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
                :scroll="{ x: 900 }"
                @change="handleTableChange">
-        <template slot="evaluateShow" slot-scope="text, record">
-          <template>
-            <a-tooltip>
-              <template slot="title">
-                {{ record.content }}
-              </template>
-              {{ record.content.slice(0, 10) }} ...
-            </a-tooltip>
-          </template>
-        </template>
         <template slot="operation" slot-scope="text, record">
-          <a-icon type="file-search" @click="orderViewOpen(record)" title="详 情"></a-icon>
+          <a-icon type="setting" theme="twoTone" twoToneColor="#4a9ff5" @click="edit(record)" title="修 改"></a-icon>
+          <a-icon type="file-search" @click="withdrawViewOpen(record)" title="详 情" style="margin-left: 15px"></a-icon>
         </template>
       </a-table>
-      <order-view
-        @close="handleorderViewClose"
-        :orderShow="orderView.visiable"
-        :orderData="orderView.data">
-      </order-view>
     </div>
+    <withdraw-add
+      v-if="withdrawAdd.visiable"
+      @close="handlewithdrawAddClose"
+      @success="handlewithdrawAddSuccess"
+      :withdrawAddVisiable="withdrawAdd.visiable">
+    </withdraw-add>
+    <withdraw-edit
+      ref="withdrawEdit"
+      @close="handlewithdrawEditClose"
+      @success="handlewithdrawEditSuccess"
+      :withdrawEditVisiable="withdrawEdit.visiable">
+    </withdraw-edit>
+    <withdraw-view
+      @close="handlewithdrawViewClose"
+      :withdrawShow="withdrawView.visiable"
+      :withdrawData="withdrawView.data">
+    </withdraw-view>
   </a-card>
 </template>
 
 <script>
 import RangeDate from '@/components/datetime/RangeDate'
+import withdrawAdd from './WithdrawAdd'
+import withdrawEdit from './WithdrawEdit'
+import withdrawView from './WithdrawView.vue'
 import {mapState} from 'vuex'
 import moment from 'moment'
-import OrderView from './OrderView'
 moment.locale('zh-cn')
 
 export default {
-  name: 'evaluate',
-  components: {RangeDate, OrderView},
+  name: 'withdraw',
+  components: {withdrawAdd, withdrawEdit, withdrawView, RangeDate},
   data () {
     return {
       advanced: false,
-      evaluateAdd: {
+      withdrawAdd: {
         visiable: false
       },
-      evaluateEdit: {
+      withdrawEdit: {
         visiable: false
       },
-      orderView: {
+      withdrawView: {
         visiable: false,
         data: null
       },
@@ -113,63 +115,13 @@ export default {
     }),
     columns () {
       return [{
-        title: '评价用户',
-        dataIndex: 'userName',
-        customRender: (text, row, index) => {
-          if (text !== null) {
-            return text
-          } else {
-            return '- -'
-          }
-        }
+        title: '员工编号',
+        dataIndex: 'code'
       }, {
-        title: '用户头像',
-        dataIndex: 'userImages',
-        customRender: (text, record, index) => {
-          if (!record.userImages) return <a-avatar shape="square" icon="user" />
-          return <a-popover>
-            <template slot="content">
-              <a-avatar shape="square" size={132} icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.userImages.split(',')[0] } />
-            </template>
-            <a-avatar shape="square" icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.userImages.split(',')[0] } />
-          </a-popover>
-        }
+        title: '员工姓名',
+        dataIndex: 'name'
       }, {
-        title: '订单编号',
-        dataIndex: 'orderCode',
-        customRender: (text, row, index) => {
-          if (text !== null) {
-            return text
-          } else {
-            return '- -'
-          }
-        }
-      }, {
-        title: '折后价格',
-        dataIndex: 'afterOrderPrice',
-        customRender: (text, row, index) => {
-          if (text !== null) {
-            return text + '元'
-          } else {
-            return '- -'
-          }
-        }
-      }, {
-        title: '评价得分',
-        dataIndex: 'score',
-        customRender: (text, row, index) => {
-          if (text !== null) {
-            return text + '分'
-          } else {
-            return '- -'
-          }
-        }
-      }, {
-        title: '评价内容',
-        dataIndex: 'content',
-        scopedSlots: {customRender: 'evaluateShow'}
-      }, {
-        title: '评价图片',
+        title: '照片',
         dataIndex: 'images',
         customRender: (text, record, index) => {
           if (!record.images) return <a-avatar shape="square" icon="user" />
@@ -181,8 +133,8 @@ export default {
           </a-popover>
         }
       }, {
-        title: '获得积分',
-        dataIndex: 'integral',
+        title: '联系方式',
+        dataIndex: 'phone',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text
@@ -191,7 +143,42 @@ export default {
           }
         }
       }, {
-        title: '评价时间',
+        title: '提现金额',
+        dataIndex: 'withdrawPrice',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text
+          } else {
+            return '- -'
+          }
+        }
+      }, {
+        title: '账户余额',
+        dataIndex: 'accountPrice',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text
+          } else {
+            return '- -'
+          }
+        }
+      }, {
+        title: '审核状态',
+        dataIndex: 'status',
+        customRender: (text, row, index) => {
+          switch (text) {
+            case '0':
+              return <a-tag>待审核</a-tag>
+            case '1':
+              return <a-tag color="green">通过</a-tag>
+            case '2':
+              return <a-tag color="red">驳回</a-tag>
+            default:
+              return '- -'
+          }
+        }
+      }, {
+        title: '创建时间',
         dataIndex: 'createDate',
         customRender: (text, row, index) => {
           if (text !== null) {
@@ -211,12 +198,12 @@ export default {
     this.fetch()
   },
   methods: {
-    orderViewOpen (row) {
-      this.orderView.data = row
-      this.orderView.visiable = true
+    withdrawViewOpen (row) {
+      this.withdrawView.data = row
+      this.withdrawView.visiable = true
     },
-    handleorderViewClose () {
-      this.orderView.visiable = false
+    handlewithdrawViewClose () {
+      this.withdrawView.visiable = false
     },
     onSelectChange (selectedRowKeys) {
       this.selectedRowKeys = selectedRowKeys
@@ -225,26 +212,26 @@ export default {
       this.advanced = !this.advanced
     },
     add () {
-      this.evaluateAdd.visiable = true
+      this.withdrawAdd.visiable = true
     },
-    handleevaluateAddClose () {
-      this.evaluateAdd.visiable = false
+    handlewithdrawAddClose () {
+      this.withdrawAdd.visiable = false
     },
-    handleevaluateAddSuccess () {
-      this.evaluateAdd.visiable = false
-      this.$message.success('新增评价成功')
+    handlewithdrawAddSuccess () {
+      this.withdrawAdd.visiable = false
+      this.$message.success('新增提现记录成功')
       this.search()
     },
     edit (record) {
-      this.$refs.evaluateEdit.setFormValues(record)
-      this.evaluateEdit.visiable = true
+      this.$refs.withdrawEdit.setFormValues(record)
+      this.withdrawEdit.visiable = true
     },
-    handleevaluateEditClose () {
-      this.evaluateEdit.visiable = false
+    handlewithdrawEditClose () {
+      this.withdrawEdit.visiable = false
     },
-    handleevaluateEditSuccess () {
-      this.evaluateEdit.visiable = false
-      this.$message.success('修改评价成功')
+    handlewithdrawEditSuccess () {
+      this.withdrawEdit.visiable = false
+      this.$message.success('修改提现记录成功')
       this.search()
     },
     handleDeptChange (value) {
@@ -262,7 +249,7 @@ export default {
         centered: true,
         onOk () {
           let ids = that.selectedRowKeys.join(',')
-          that.$delete('/cos/evaluate-info/' + ids).then(() => {
+          that.$delete('/cos/withdraw-info/' + ids).then(() => {
             that.$message.success('删除成功')
             that.selectedRowKeys = []
             that.search()
@@ -332,10 +319,7 @@ export default {
         params.size = this.pagination.defaultPageSize
         params.current = this.pagination.defaultCurrent
       }
-      if (params.type === undefined) {
-        delete params.type
-      }
-      this.$get('/cos/evaluate-info/page', {
+      this.$get('/cos/withdraw-info/page', {
         ...params
       }).then((r) => {
         let data = r.data.data

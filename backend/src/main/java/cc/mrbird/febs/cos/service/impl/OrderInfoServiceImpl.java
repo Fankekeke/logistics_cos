@@ -7,6 +7,7 @@ import cc.mrbird.febs.cos.dao.OrderInfoMapper;
 import cc.mrbird.febs.cos.service.*;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -40,6 +41,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     private final IStaffInfoService staffInfoService;
 
     private final IStaffIncomeService staffIncomeService;
+
+    private final IEvaluateInfoService evaluateInfoService;
 
     /**
      * 分页获取订单信息
@@ -194,5 +197,58 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         }
 
         return discountInfoService.list(Wrappers.<DiscountInfo>lambdaQuery().eq(DiscountInfo::getUserId, userInfo.getId()).eq(DiscountInfo::getStatus, "0"));
+    }
+
+    /**
+     * 获取ID获取订单详情
+     *
+     * @param id 主键
+     * @return 结果
+     */
+    @Override
+    public LinkedHashMap<String, Object> selectOrderDetail(Integer id) {
+        // 返回数据
+        LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>() {
+            {
+                put("user", null);
+                put("order", null);
+                put("startAddress", null);
+                put("endAddress", null);
+                put("staff", null);
+                put("evaluate", null);
+                put("discount", null);
+            }
+        };
+        // 订单信息
+        OrderInfo orderInfo = this.getById(id);
+        result.put("order", orderInfo);
+
+        // 用户信息
+        UserInfo userInfo = userInfoService.getById(orderInfo.getUserId());
+        result.put("user", userInfo);
+
+        // 送货地址
+        AddressInfo startAddress = addressInfoService.getById(orderInfo.getStartAddressId());
+        result.put("startAddress", startAddress);
+        // 收货地址
+        AddressInfo endAddress = addressInfoService.getById(orderInfo.getEndAddressId());
+        result.put("endAddress", endAddress);
+
+        // 员工信息
+        if (StrUtil.isNotEmpty(orderInfo.getStaffIds())) {
+            StaffInfo staffInfo = staffInfoService.getById(orderInfo.getStaffIds());
+            result.put("staff", staffInfo);
+        }
+
+        // 评价信息
+        EvaluateInfo evaluateInfo = evaluateInfoService.getOne(Wrappers.<EvaluateInfo>lambdaQuery().eq(EvaluateInfo::getOrderId, orderInfo));
+        result.put("evaluate", evaluateInfo);
+
+        // 优惠券信息
+        if (orderInfo.getDiscountId() != null) {
+            DiscountInfo discountInfo = discountInfoService.getById(orderInfo.getDiscountId());
+            result.put("discount", discountInfo);
+        }
+        return result;
     }
 }

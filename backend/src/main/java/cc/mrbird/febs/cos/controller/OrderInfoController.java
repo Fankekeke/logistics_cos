@@ -100,7 +100,7 @@ public class OrderInfoController {
      */
     @GetMapping("/{id}")
     public R detail(@PathVariable("id") Integer id) {
-        return R.ok(orderInfoService.getById(id));
+        return R.ok(orderInfoService.selectOrderDetail(id));
     }
 
     /**

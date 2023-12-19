@@ -65,4 +65,12 @@ public interface IOrderInfoService extends IService<OrderInfo> {
      * @return 结果
      */
     List<DiscountInfo> selectDiscountByUser(Integer userId);
+
+    /**
+     * 获取ID获取订单详情
+     *
+     * @param id 主键
+     * @return 结果
+     */
+    LinkedHashMap<String, Object> selectOrderDetail(Integer id);
 }

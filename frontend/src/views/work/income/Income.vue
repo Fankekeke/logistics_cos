@@ -7,18 +7,26 @@
           <div :class="advanced ? null: 'fold'">
             <a-col :md="6" :sm="24">
               <a-form-item
-                label="用户名称"
+                label="订单编号"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
-                <a-input v-model="queryParams.userName"/>
+                <a-input v-model="queryParams.code"/>
               </a-form-item>
             </a-col>
             <a-col :md="6" :sm="24">
               <a-form-item
-                label="订单编号"
+                label="员工姓名"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
-                <a-input v-model="queryParams.orderCode"/>
+                <a-input v-model="queryParams.staffName"/>
+              </a-form-item>
+            </a-col>
+            <a-col :md="6" :sm="24">
+              <a-form-item
+                label="订单名称"
+                :labelCol="{span: 5}"
+                :wrapperCol="{span: 18, offset: 1}">
+                <a-input v-model="queryParams.orderName"/>
               </a-form-item>
             </a-col>
           </div>
@@ -113,8 +121,8 @@ export default {
     }),
     columns () {
       return [{
-        title: '评价用户',
-        dataIndex: 'userName',
+        title: '员工编号',
+        dataIndex: 'staffCode',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text
@@ -123,15 +131,25 @@ export default {
           }
         }
       }, {
-        title: '用户头像',
-        dataIndex: 'userImages',
+        title: '员工姓名',
+        dataIndex: 'staffName',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text
+          } else {
+            return '- -'
+          }
+        }
+      }, {
+        title: '头像',
+        dataIndex: 'images',
         customRender: (text, record, index) => {
-          if (!record.userImages) return <a-avatar shape="square" icon="user" />
+          if (!record.images) return <a-avatar shape="square" icon="user" />
           return <a-popover>
             <template slot="content">
-              <a-avatar shape="square" size={132} icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.userImages.split(',')[0] } />
+              <a-avatar shape="square" size={132} icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images.split(',')[0] } />
             </template>
-            <a-avatar shape="square" icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.userImages.split(',')[0] } />
+            <a-avatar shape="square" icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images.split(',')[0] } />
           </a-popover>
         }
       }, {
@@ -145,44 +163,8 @@ export default {
           }
         }
       }, {
-        title: '折后价格',
-        dataIndex: 'afterOrderPrice',
-        customRender: (text, row, index) => {
-          if (text !== null) {
-            return text + '元'
-          } else {
-            return '- -'
-          }
-        }
-      }, {
-        title: '评价得分',
-        dataIndex: 'score',
-        customRender: (text, row, index) => {
-          if (text !== null) {
-            return text + '分'
-          } else {
-            return '- -'
-          }
-        }
-      }, {
-        title: '评价内容',
-        dataIndex: 'content',
-        scopedSlots: {customRender: 'evaluateShow'}
-      }, {
-        title: '评价图片',
-        dataIndex: 'images',
-        customRender: (text, record, index) => {
-          if (!record.images) return <a-avatar shape="square" icon="user" />
-          return <a-popover>
-            <template slot="content">
-              <a-avatar shape="square" size={132} icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images.split(',')[0] } />
-            </template>
-            <a-avatar shape="square" icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images.split(',')[0] } />
-          </a-popover>
-        }
-      }, {
-        title: '获得积分',
-        dataIndex: 'integral',
+        title: '订单名称',
+        dataIndex: 'orderName',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text
@@ -191,7 +173,47 @@ export default {
           }
         }
       }, {
-        title: '评价时间',
+        title: '联系方式',
+        dataIndex: 'phone',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text + '分'
+          } else {
+            return '- -'
+          }
+        }
+      }, {
+        title: '订单收益',
+        dataIndex: 'income',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text + '元'
+          } else {
+            return '- -'
+          }
+        }
+      }, {
+        title: '配送费用',
+        dataIndex: 'deliveryPrice',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text + '元'
+          } else {
+            return '- -'
+          }
+        }
+      }, {
+        title: '总收益',
+        dataIndex: 'totalPrice',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text + '元'
+          } else {
+            return '- -'
+          }
+        }
+      }, {
+        title: '创建时间',
         dataIndex: 'createDate',
         customRender: (text, row, index) => {
           if (text !== null) {
@@ -262,7 +284,7 @@ export default {
         centered: true,
         onOk () {
           let ids = that.selectedRowKeys.join(',')
-          that.$delete('/cos/evaluate-info/' + ids).then(() => {
+          that.$delete('/cos/staff-income/' + ids).then(() => {
             that.$message.success('删除成功')
             that.selectedRowKeys = []
             that.search()
@@ -335,7 +357,7 @@ export default {
       if (params.type === undefined) {
         delete params.type
       }
-      this.$get('/cos/evaluate-info/page', {
+      this.$get('/cos/staff-income/page', {
         ...params
       }).then((r) => {
         let data = r.data.data

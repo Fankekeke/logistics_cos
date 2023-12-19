@@ -2,7 +2,9 @@ package cc.mrbird.febs.cos.controller;
 
 
 import cc.mrbird.febs.common.utils.R;
+import cc.mrbird.febs.cos.entity.OrderInfo;
 import cc.mrbird.febs.cos.entity.StaffInfo;
+import cc.mrbird.febs.cos.service.IOrderInfoService;
 import cc.mrbird.febs.cos.service.IStaffInfoService;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -24,6 +27,8 @@ import java.util.List;
 public class StaffInfoController {
 
     private final IStaffInfoService staffInfoService;
+
+    private final IOrderInfoService orderInfoService;
 
     /**
      * 分页获取员工信息
@@ -46,6 +51,26 @@ public class StaffInfoController {
     @GetMapping("/{id}")
     public R detail(@PathVariable("id") Integer id) {
         return R.ok(staffInfoService.getById(id));
+    }
+
+    /**
+     * 获取ID获取员工详情
+     *
+     * @param userId 用户ID
+     * @return 结果
+     */
+    @GetMapping("/staff/{id}")
+    public R detailByStaff(@PathVariable("id") Integer userId) {
+        LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>() {
+            {
+                put("staff", null);
+                put("order", Collections.emptyList());
+            }
+        };
+        StaffInfo staffInfo = staffInfoService.getOne(Wrappers.<StaffInfo>lambdaQuery().eq(StaffInfo::getUserId, userId));
+        result.put("staff", staffInfo);
+        result.put("order", orderInfoService.list(Wrappers.<OrderInfo>lambdaQuery().eq(OrderInfo::getStaffIds, staffInfo.getId())));
+        return R.ok(result);
     }
 
     /**

@@ -18,7 +18,6 @@
 	        oi.code as orderCode,
             oi.after_order_price,
             oi.order_price ,
-            oi.`type`,
             oi.integral
         from
             evaluate_info ei
