@@ -249,7 +249,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             DiscountInfo discountInfo = discountInfoService.getById(orderInfo.getDiscountId());
             result.put("discount", discountInfo);
         }
-        return null;
+        return result;
     }
 
     /**

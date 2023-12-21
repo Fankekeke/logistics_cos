@@ -1,5 +1,5 @@
 <template>
-  <a-modal v-model="show" title="收益详情" @cancel="onClose" :width="1500">
+  <a-modal v-model="show" title="收益详情" @cancel="onClose" :width="1300">
     <template slot="footer">
       <a-button key="back" @click="onClose" type="danger">
         关闭
@@ -53,7 +53,7 @@
           {{ orderInfo.orderName ? orderInfo.orderName : '- -' }}
         </a-col>
         <a-col :span="6"><b>总价格：</b>
-          {{ orderInfo.total ? orderInfo.total + '元' : '- -' }}
+          {{ orderInfo.orderPrice ? orderInfo.orderPrice + '元' : '- -' }}
         </a-col>
         <a-col :span="6"><b>创建时间：</b>
           {{ orderInfo.createDate }}
@@ -65,13 +65,13 @@
           {{ orderInfo.payDate }}
         </a-col>
         <a-col :span="6"><b>公里数：</b>
-          {{ orderInfo.kilometre ? orderInfo.kilometre : '- -' }}
+          {{ orderInfo.kilometre ? orderInfo.kilometre : '- -' }}KM
         </a-col>
         <a-col :span="6"><b>配送价格：</b>
-          {{ orderInfo.distributionPrice ? orderInfo.distributionPrice : '- -' }}
+          {{ orderInfo.distributionPrice ? orderInfo.distributionPrice : '- -' }}元
         </a-col>
         <a-col :span="6"><b>折扣后价格：</b>
-          {{ orderInfo.afterOrderPrice ? orderInfo.afterOrderPrice : '- -' }}
+          {{ orderInfo.afterOrderPrice ? orderInfo.afterOrderPrice : '- -' }}元
         </a-col>
       </a-row>
       <br/>
@@ -80,7 +80,7 @@
     <div style="font-size: 13px;font-family: SimHei" v-if="startAddressInfo !== null">
       <a-row style="padding-left: 24px;padding-right: 24px;">
         <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">发货地址</span></a-col>
-        <a-col :span="12"><b>详细地址：</b>
+        <a-col :span="6"><b>详细地址：</b>
           {{ startAddressInfo.address }}
         </a-col>
         <a-col :span="6"><b>联系人：</b>
@@ -96,7 +96,7 @@
     <div style="font-size: 13px;font-family: SimHei" v-if="endAddressInfo !== null">
       <a-row style="padding-left: 24px;padding-right: 24px;">
         <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">送货地址</span></a-col>
-        <a-col :span="12"><b>详细地址：</b>
+        <a-col :span="6"><b>详细地址：</b>
           {{ endAddressInfo.address }}
         </a-col>
         <a-col :span="6"><b>联系人：</b>
@@ -116,8 +116,8 @@
           {{ staffInfo.name }}
         </a-col>
         <a-col :span="6"><b>性别：</b>
-          <span v-if="orderInfo.type === '1'">男</span>
-          <span v-if="orderInfo.type === '2'">女</span>
+          <span v-if="staffInfo.sex == '1'">男</span>
+          <span v-if="staffInfo.sex == '2'">女</span>
         </a-col>
         <a-col :span="6"><b>员工工号：</b>
           {{ staffInfo.code }}

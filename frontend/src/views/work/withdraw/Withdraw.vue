@@ -319,6 +319,9 @@ export default {
         params.size = this.pagination.defaultPageSize
         params.current = this.pagination.defaultCurrent
       }
+      if (params.status === undefined) {
+        delete params.status
+      }
       this.$get('/cos/withdraw-info/page', {
         ...params
       }).then((r) => {

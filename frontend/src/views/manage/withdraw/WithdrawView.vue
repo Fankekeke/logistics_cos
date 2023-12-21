@@ -23,7 +23,7 @@
         <a-col :span="8"><b>提现金额：</b>
           {{ withdrawData.withdrawPrice }} 元
         </a-col>
-        <a-col :span="8"><b>账户余额：</b>
+        <a-col :span="8"><b>提现后余额：</b>
           {{ withdrawData.accountPrice }} 元
         </a-col>
         <a-col :span="8"><b>申请时间：</b>
