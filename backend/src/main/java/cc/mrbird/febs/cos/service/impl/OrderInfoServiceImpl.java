@@ -200,6 +200,59 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     /**
+     * 获取ID获取评价详情
+     *
+     * @param id 主键
+     * @return 结果
+     */
+    @Override
+    public LinkedHashMap<String, Object> selectEvaluate(Integer id) {
+        // 返回数据
+        LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>() {
+            {
+                put("user", null);
+                put("order", null);
+                put("startAddress", null);
+                put("endAddress", null);
+                put("staff", null);
+                put("evaluate", null);
+                put("discount", null);
+            }
+        };
+        // 评价信息
+        EvaluateInfo evaluateInfo = evaluateInfoService.getById(id);
+        result.put("evaluate", evaluateInfo);
+
+        // 订单信息
+        OrderInfo orderInfo = this.getById(evaluateInfo.getOrderId());
+        result.put("order", orderInfo);
+
+        // 用户信息
+        UserInfo userInfo = userInfoService.getById(orderInfo.getUserId());
+        result.put("user", userInfo);
+
+        // 送货地址
+        AddressInfo startAddress = addressInfoService.getById(orderInfo.getStartAddressId());
+        result.put("startAddress", startAddress);
+        // 收货地址
+        AddressInfo endAddress = addressInfoService.getById(orderInfo.getEndAddressId());
+        result.put("endAddress", endAddress);
+
+        // 员工信息
+        if (StrUtil.isNotEmpty(orderInfo.getStaffIds())) {
+            StaffInfo staffInfo = staffInfoService.getById(orderInfo.getStaffIds());
+            result.put("staff", staffInfo);
+        }
+
+        // 优惠券信息
+        if (orderInfo.getDiscountId() != null) {
+            DiscountInfo discountInfo = discountInfoService.getById(orderInfo.getDiscountId());
+            result.put("discount", discountInfo);
+        }
+        return null;
+    }
+
+    /**
      * 获取ID获取订单详情
      *
      * @param id 主键

@@ -104,6 +104,17 @@ public class OrderInfoController {
     }
 
     /**
+     * 获取ID获取评价详情
+     *
+     * @param id 主键
+     * @return 结果
+     */
+    @GetMapping("/evaluate/{id}")
+    public R evaluateDetail(@PathVariable("id") Integer id) {
+        return R.ok(orderInfoService.selectEvaluate(id));
+    }
+
+    /**
      * 获取订单信息列表
      *
      * @return 结果
