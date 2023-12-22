@@ -6,6 +6,7 @@ import cc.mrbird.febs.cos.entity.*;
 import cc.mrbird.febs.cos.dao.OrderInfoMapper;
 import cc.mrbird.febs.cos.service.*;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -16,11 +17,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -43,6 +44,12 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     private final IStaffIncomeService staffIncomeService;
 
     private final IEvaluateInfoService evaluateInfoService;
+
+    private final TemplateEngine templateEngine;
+
+    private final IMailService mailService;
+
+    private final IBulletinInfoService bulletinInfoService;
 
     /**
      * 分页获取订单信息
@@ -88,6 +95,33 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             orderInfo.setUseDiscount(discountCheck);
         }
         return orderInfo;
+    }
+
+    /**
+     * 员工接单
+     *
+     * @param orderId 订单ID
+     * @param staffId 员工ID
+     * @return 结果
+     */
+    @Override
+    public boolean checkOrder(Integer orderId, Integer staffId) {
+        // 订单详情
+        OrderInfo orderInfo = this.getById(orderId);
+
+        UserInfo userInfo = userInfoService.getById(orderInfo.getUserId());
+
+        StaffInfo staffInfo = staffInfoService.getById(staffId);
+
+        // 邮箱通知
+        if (StrUtil.isNotEmpty(userInfo.getMail())) {
+            Context context = new Context();
+            context.setVariable("today", DateUtil.formatDate(new Date()));
+            context.setVariable("custom", userInfo.getName() + "，您好，消费订单  " + orderInfo.getCode() + " 已被接单，联系方式：" + staffInfo.getPhone());
+            String emailContent = templateEngine.process("registerEmail", context);
+            mailService.sendHtmlMail(userInfo.getMail(), DateUtil.formatDate(new Date()) + "订单接单", emailContent);
+        }
+        return this.update(Wrappers.<OrderInfo>lambdaUpdate().set(OrderInfo::getStaffIds, staffId).set(OrderInfo::getStatus, 2).eq(OrderInfo::getId, orderId));
     }
 
     /**
@@ -156,6 +190,98 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         StaffInfo staffInfo = staffInfoService.getById(withdrawInfo.getStaffId());
         result.put("staff", staffInfo);
         return result;
+    }
+
+    /**
+     * 添加订单信息
+     *
+     * @param orderInfo 订单信息
+     * @return 结果
+     */
+    @Override
+    public boolean saveOrder(OrderInfo orderInfo) {
+        orderInfo.setCreateDate(DateUtil.formatDateTime(new Date()));
+        // 用户信息
+        UserInfo userInfo = userInfoService.getOne(Wrappers.<UserInfo>lambdaQuery().eq(UserInfo::getUserId, orderInfo.getUserId()));
+
+        orderInfo.setUserId(userInfo.getId());
+
+        // 添加订单
+        orderInfo.setStatus("0");
+        return this.save(orderInfo);
+    }
+
+    /**
+     * 订单收货
+     *
+     * @param orderCode 订单编号
+     * @param status    状态
+     * @return 结果
+     */
+    @Override
+    public boolean auditOrderFinish(String orderCode, Integer status) {
+        OrderInfo order = this.getOne(Wrappers.<OrderInfo>lambdaQuery().eq(OrderInfo::getCode, orderCode));
+
+        UserInfo userInfo = userInfoService.getById(order.getUserId());
+
+        // 保存订单收益
+        StaffIncome staffIncome = new StaffIncome();
+        staffIncome.setStaffId(Integer.parseInt(order.getStaffIds()));
+        staffIncome.setOrderId(order.getId());
+        staffIncome.setCreateDate(DateUtil.formatDateTime(new Date()));
+
+        // 订单价格
+        staffIncome.setIncome(NumberUtil.mul(order.getOrderPrice(), 0.8));
+        staffIncome.setDeliveryPrice(NumberUtil.mul(order.getDistributionPrice(), 0.8));
+        staffIncome.setTotalPrice(NumberUtil.add(staffIncome.getIncome(), staffIncome.getDeliveryPrice()));
+        staffIncomeService.save(staffIncome);
+
+        // 更新员工收益
+        StaffInfo staffInfo = staffInfoService.getById(order.getStaffIds());
+        staffInfo.setPrice(NumberUtil.add(staffInfo.getPrice(), staffIncome.getTotalPrice()));
+        staffInfoService.updateById(staffInfo);
+
+        // 邮箱通知
+        if (StrUtil.isNotEmpty(userInfo.getMail())) {
+            Context context = new Context();
+            context.setVariable("today", DateUtil.formatDate(new Date()));
+            context.setVariable("custom", userInfo.getName() + "，您好， 消费订单 " + order.getCode() + " 已完成，可进行评价");
+            String emailContent = templateEngine.process("registerEmail", context);
+            mailService.sendHtmlMail(userInfo.getMail(), DateUtil.formatDate(new Date()) + "订单完成", emailContent);
+        }
+        return this.update(Wrappers.<OrderInfo>lambdaUpdate().set(OrderInfo::getStatus, status).eq(OrderInfo::getCode, orderCode));
+    }
+
+    /**
+     * 订单支付
+     *
+     * @param orderCode 订单编号
+     * @return 结果
+     */
+    @Override
+    public boolean orderPay(String orderCode) {
+        // 获取订单信息
+        OrderInfo orderInfo = this.getOne(Wrappers.<OrderInfo>lambdaQuery().eq(OrderInfo::getCode, orderCode));
+        orderInfo.setStatus("1");
+        orderInfo.setPayDate(DateUtil.formatDateTime(new Date()));
+
+        // 用户添加积分
+        UserInfo userInfo = userInfoService.getById(orderInfo.getUserId());
+        userInfo.setIntegral(NumberUtil.add(userInfo.getIntegral(), orderInfo.getIntegral()));
+
+        // 用户下单发送邮件
+        if (StrUtil.isNotEmpty(userInfo.getMail())) {
+            Context context = new Context();
+            context.setVariable("today", DateUtil.formatDate(new Date()));
+            context.setVariable("custom", userInfo.getName() + "，您好，消费订单 " + orderCode + "，已支付" + orderInfo.getAfterOrderPrice() + "元。");
+            String emailContent = templateEngine.process("registerEmail", context);
+            mailService.sendHtmlMail(userInfo.getMail(), DateUtil.formatDate(new Date()) + "支付通知", emailContent);
+        }
+
+        // 更新用户积分
+        userInfoService.updateById(userInfo);
+        // 更新订单状态
+        return this.updateById(orderInfo);
     }
 
     /**
@@ -302,6 +428,112 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             DiscountInfo discountInfo = discountInfoService.getById(orderInfo.getDiscountId());
             result.put("discount", discountInfo);
         }
+        return result;
+    }
+
+    /**
+     * 员工获取统计信息
+     *
+     * @param userId 员工ID
+     * @return 结果
+     */
+    @Override
+    public LinkedHashMap<String, Object> selectHomeDataByMerchant(Integer userId) {
+        // 返回数据
+        LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>() {
+            {
+                put("orderNum", 0);
+                put("orderPrice", 0);
+                put("staffNum", 0);
+                put("memberNum", 0);
+            }
+        };
+
+        // 员工信息
+        StaffInfo staffInfo = staffInfoService.getOne(Wrappers.<StaffInfo>lambdaQuery().eq(StaffInfo::getUserId, userId));
+
+        List<OrderInfo> orderInfoList = this.list(Wrappers.<OrderInfo>lambdaQuery().eq(OrderInfo::getStaffIds, staffInfo.getId()).ne(OrderInfo::getStatus, "0"));
+
+        BigDecimal totalPrice = orderInfoList.stream().map(OrderInfo::getAfterOrderPrice).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
+        result.put("orderNum", orderInfoList.size());
+        result.put("orderPrice", totalPrice);
+        result.put("staffNum", staffInfoService.count(Wrappers.<StaffInfo>lambdaQuery().eq(StaffInfo::getStatus, "1")));
+        result.put("memberNum", userInfoService.count());
+
+        // 本月订单数量
+        List<OrderInfo> orderMonthList = baseMapper.selectOrderByMonth(staffInfo.getId());
+        result.put("monthOrderNum", CollectionUtil.isEmpty(orderMonthList) ? 0 : orderMonthList.size());
+        BigDecimal orderPrice = orderMonthList.stream().map(OrderInfo::getAfterOrderPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+        // 获取本月收益
+        result.put("monthOrderTotal", orderPrice);
+
+        // 本年订单数量
+        List<OrderInfo> orderYearList = baseMapper.selectOrderByYear(staffInfo.getId());
+        result.put("yearOrderNum", CollectionUtil.isEmpty(orderYearList) ? 0 : orderYearList.size());
+        // 本年总收益
+        BigDecimal orderYearPrice = orderYearList.stream().map(OrderInfo::getAfterOrderPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+        result.put("yearOrderTotal", orderYearPrice);
+
+        // 近十天销售订单统计
+        result.put("orderNumDayList", baseMapper.selectOrderNumWithinDays(staffInfo.getId()));
+        // 近十天销售金额统计
+        result.put("priceDayList", baseMapper.selectOrderPriceWithinDays(staffInfo.getId()));
+        // todo 销售菜品统计
+        // result.put("orderDrugType", baseMapper.selectOrderDishesType(merchantInfo.getId()));
+        // 公告信息
+        result.put("bulletinInfoList", bulletinInfoService.list(Wrappers.<BulletinInfo>lambdaQuery().eq(BulletinInfo::getRackUp, 1)));
+
+        return result;
+    }
+
+    /**
+     * 管理员获取主页统计数据
+     *
+     * @return 结果
+     */
+    @Override
+    public LinkedHashMap<String, Object> homeDataByAdmin() {
+// 返回数据
+        LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>() {
+            {
+                put("orderNum", 0);
+                put("orderPrice", 0);
+                put("staffNum", 0);
+                put("merchantNum", 0);
+            }
+        };
+
+        List<OrderInfo> orderInfoList = this.list(Wrappers.<OrderInfo>lambdaQuery().ne(OrderInfo::getStatus, "0"));
+
+        BigDecimal totalPrice = orderInfoList.stream().map(OrderInfo::getAfterOrderPrice).filter(Objects::nonNull).reduce(BigDecimal.ZERO, BigDecimal::add);
+        result.put("orderNum", orderInfoList.size());
+        result.put("orderPrice", totalPrice);
+        result.put("staffNum", staffInfoService.count(Wrappers.<StaffInfo>lambdaQuery().eq(StaffInfo::getStatus, "1")));
+        result.put("merchantNum", userInfoService.count());
+
+        // 本月订单数量
+        List<OrderInfo> orderMonthList = baseMapper.selectOrderByMonth(null);
+        result.put("monthOrderNum", CollectionUtil.isEmpty(orderMonthList) ? 0 : orderMonthList.size());
+        BigDecimal orderPrice = orderMonthList.stream().map(OrderInfo::getAfterOrderPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+        // 获取本月收益
+        result.put("monthOrderTotal", orderPrice);
+
+        // 本年订单数量
+        List<OrderInfo> orderYearList = baseMapper.selectOrderByYear(null);
+        result.put("yearOrderNum", CollectionUtil.isEmpty(orderYearList) ? 0 : orderYearList.size());
+        // 本年总收益
+        BigDecimal orderYearPrice = orderYearList.stream().map(OrderInfo::getAfterOrderPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+        result.put("yearOrderTotal", orderYearPrice);
+
+        // 近十天销售订单统计
+        result.put("orderNumDayList", baseMapper.selectOrderNumWithinDays(null));
+        // 近十天销售金额统计
+        result.put("priceDayList", baseMapper.selectOrderPriceWithinDays(null));
+        // 销售菜品统计
+        // result.put("orderDrugType", baseMapper.selectOrderDishesType(null));
+        // 公告信息
+        result.put("bulletinInfoList", bulletinInfoService.list(Wrappers.<BulletinInfo>lambdaQuery().eq(BulletinInfo::getRackUp, 1)));
+
         return result;
     }
 }

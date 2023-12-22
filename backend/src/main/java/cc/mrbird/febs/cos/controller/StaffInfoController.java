@@ -95,6 +95,16 @@ public class StaffInfoController {
     }
 
     /**
+     * 获取在职员工信息列表
+     *
+     * @return 结果
+     */
+    @GetMapping("/list/online")
+    public R listByOnline() {
+        return R.ok(staffInfoService.list(Wrappers.<StaffInfo>lambdaQuery().eq(StaffInfo::getStatus, 1)));
+    }
+
+    /**
      * 新增员工信息
      *
      * @param staffInfo 员工信息

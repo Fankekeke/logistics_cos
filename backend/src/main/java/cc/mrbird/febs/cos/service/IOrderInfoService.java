@@ -35,6 +35,15 @@ public interface IOrderInfoService extends IService<OrderInfo> {
     OrderInfo getPriceTotal(OrderInfo orderInfo);
 
     /**
+     * 员工接单
+     *
+     * @param orderId 订单ID
+     * @param staffId 员工ID
+     * @return 结果
+     */
+    boolean checkOrder(Integer orderId, Integer staffId);
+
+    /**
      * 查询收益记录详情
      *
      * @param incomeId 记录ID
@@ -49,6 +58,31 @@ public interface IOrderInfoService extends IService<OrderInfo> {
      * @return 结果
      */
     LinkedHashMap<String, Object> selectWithdrawDetail(Integer withdrawId);
+
+    /**
+     * 添加订单信息
+     *
+     * @param orderInfo 订单信息
+     * @return 结果
+     */
+    boolean saveOrder(OrderInfo orderInfo);
+
+    /**
+     * 订单收货
+     *
+     * @param orderCode 订单编号
+     * @param status    状态
+     * @return 结果
+     */
+    boolean auditOrderFinish(String orderCode, Integer status);
+
+    /**
+     * 订单支付
+     *
+     * @param orderCode 订单编号
+     * @return 结果
+     */
+    boolean orderPay(String orderCode);
 
     /**
      * 管理员审核提现申请
@@ -81,4 +115,19 @@ public interface IOrderInfoService extends IService<OrderInfo> {
      * @return 结果
      */
     LinkedHashMap<String, Object> selectOrderDetail(Integer id);
+
+    /**
+     * 员工获取统计信息
+     *
+     * @param userId 员工ID
+     * @return 结果
+     */
+    LinkedHashMap<String, Object> selectHomeDataByMerchant(Integer userId);
+
+    /**
+     * 管理员获取主页统计数据
+     *
+     * @return 结果
+     */
+    LinkedHashMap<String, Object> homeDataByAdmin();
 }

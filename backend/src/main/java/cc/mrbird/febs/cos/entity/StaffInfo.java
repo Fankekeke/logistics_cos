@@ -50,6 +50,11 @@ public class StaffInfo implements Serializable {
     private Integer status;
 
     /**
+     * 联系方式
+     */
+    private String phone;
+
+    /**
      * 照片
      */
     private String images;

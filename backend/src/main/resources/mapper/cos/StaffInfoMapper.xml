@@ -9,6 +9,7 @@
         sti.code,
         sti.name,
         sti.sex,
+        sti.phone,
         sti.status,
         sti.images,
         sti.create_date,

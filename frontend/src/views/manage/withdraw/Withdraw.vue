@@ -57,7 +57,7 @@
                :scroll="{ x: 900 }"
                @change="handleTableChange">
         <template slot="operation" slot-scope="text, record">
-          <a-icon v-if="record.status == 0" type="setting" theme="twoTone" twoToneColor="#4a9ff5" @click="edit(record)" title="审 核"></a-icon>
+          <a-icon v-if="record.status == 0" type="setting" theme="twoTone" twoToneColor="#4a9ff5" @click="withdrawAuditOpen(record)" title="审 核"></a-icon>
           <a-icon type="file-search" @click="withdrawViewOpen(record)" title="详 情" style="margin-left: 15px"></a-icon>
         </template>
       </a-table>
@@ -79,6 +79,12 @@
       :withdrawShow="withdrawView.visiable"
       :withdrawData="withdrawView.data">
     </withdraw-view>
+    <withdraw-audit
+      @close="handlewithdrawAuditClose"
+      @auditSuccess="handlewithdrawViewSuccess"
+      :withdrawShow="withdrawAudit.visiable"
+      :withdrawData="withdrawAudit.data">
+    </withdraw-audit>
   </a-card>
 </template>
 
@@ -87,13 +93,14 @@ import RangeDate from '@/components/datetime/RangeDate'
 import withdrawAdd from './WithdrawAdd'
 import withdrawEdit from './WithdrawEdit'
 import withdrawView from './WithdrawView.vue'
+import withdrawAudit from './WithdrawAudit.vue'
 import {mapState} from 'vuex'
 import moment from 'moment'
 moment.locale('zh-cn')
 
 export default {
   name: 'withdraw',
-  components: {withdrawAdd, withdrawEdit, withdrawView, RangeDate},
+  components: {withdrawAdd, withdrawEdit, withdrawView, RangeDate, withdrawAudit},
   data () {
     return {
       advanced: false,
@@ -104,6 +111,10 @@ export default {
         visiable: false
       },
       withdrawView: {
+        visiable: false,
+        data: null
+      },
+      withdrawAudit: {
         visiable: false,
         data: null
       },
@@ -214,12 +225,24 @@ export default {
     this.fetch()
   },
   methods: {
+    withdrawAuditOpen (row) {
+      this.withdrawAudit.data = row
+      this.withdrawAudit.visiable = true
+    },
     withdrawViewOpen (row) {
       this.withdrawView.data = row
       this.withdrawView.visiable = true
     },
     handlewithdrawViewClose () {
       this.withdrawView.visiable = false
+    },
+    handlewithdrawAuditClose () {
+      this.withdrawAudit.visiable = false
+    },
+    handlewithdrawViewSuccess () {
+      this.withdrawAudit.visiable = false
+      this.$message.success('审核成功')
+      this.search()
     },
     onSelectChange (selectedRowKeys) {
       this.selectedRowKeys = selectedRowKeys

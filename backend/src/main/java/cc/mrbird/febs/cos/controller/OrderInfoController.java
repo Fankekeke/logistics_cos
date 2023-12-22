@@ -7,6 +7,7 @@ import cc.mrbird.febs.cos.entity.OrderInfo;
 import cc.mrbird.febs.cos.entity.WithdrawInfo;
 import cc.mrbird.febs.cos.service.IOrderInfoService;
 import cn.hutool.core.date.DateUtil;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,18 @@ public class OrderInfoController {
     @GetMapping("/page")
     public R page(Page<OrderInfo> page, OrderInfo orderInfo) {
         return R.ok(orderInfoService.selectOrderPage(page, orderInfo));
+    }
+
+    /**
+     * 员工接单
+     *
+     * @param orderId 订单ID
+     * @param staffId 员工ID
+     * @return 结果
+     */
+    @GetMapping("/checkOrder")
+    public R checkOrder(@RequestParam("orderId") Integer orderId, @RequestParam("staffId") Integer staffId) {
+        return R.ok(orderInfoService.checkOrder(orderId, staffId));
     }
 
     /**
@@ -68,6 +81,29 @@ public class OrderInfoController {
     @GetMapping("/withdraw/{id}")
     public R selectWithdrawDetail(@PathVariable("id") Integer withdrawId) {
         return R.ok(orderInfoService.selectWithdrawDetail(withdrawId));
+    }
+
+    /**
+     * 订单收货
+     *
+     * @param orderCode 订单编号
+     * @param status    状态
+     * @return 结果
+     */
+    @GetMapping("/auditOrderFinish")
+    public R auditOrderFinish(@RequestParam("orderCode") String orderCode, @RequestParam("status") Integer status) {
+        return R.ok(orderInfoService.auditOrderFinish(orderCode, status));
+    }
+
+    /**
+     * 订单支付
+     *
+     * @param orderCode 订单编号
+     * @return 结果
+     */
+    @GetMapping("/orderPay")
+    public R orderPay(@RequestParam("orderCode") String orderCode) {
+        return R.ok(orderInfoService.orderPay(orderCode));
     }
 
     /**
@@ -122,6 +158,16 @@ public class OrderInfoController {
     @GetMapping("/list")
     public R list() {
         return R.ok(orderInfoService.list());
+    }
+
+    /**
+     * 管理员获取主页统计数据
+     *
+     * @return 结果
+     */
+    @GetMapping("/homeData/admin")
+    public R homeDataByAdmin() {
+        return R.ok(orderInfoService.homeDataByAdmin());
     }
 
     /**

@@ -1,6 +1,7 @@
 package cc.mrbird.febs.cos.controller;
 
 
+import cc.mrbird.febs.common.exception.FebsException;
 import cc.mrbird.febs.common.utils.R;
 import cc.mrbird.febs.cos.entity.StaffInfo;
 import cc.mrbird.febs.cos.entity.WithdrawInfo;
@@ -68,7 +69,12 @@ public class WithdrawInfoController {
      * @return 结果
      */
     @PostMapping
-    public R save(WithdrawInfo withdrawInfo) {
+    public R save(WithdrawInfo withdrawInfo) throws FebsException {
+        // 校验此员工是否有提现正在审核中
+        int count = withdrawInfoService.count(Wrappers.<WithdrawInfo>lambdaQuery().eq(WithdrawInfo::getStatus, 0));
+        if (count > 0) {
+            throw new FebsException("存在正在审核的提现记录！");
+        }
         withdrawInfo.setCode("WD-" + System.currentTimeMillis());
         StaffInfo staffInfo = staffInfoService.getOne(Wrappers.<StaffInfo>lambdaQuery().eq(StaffInfo::getUserId, withdrawInfo.getStaffId()));
         if (staffInfo != null) {
