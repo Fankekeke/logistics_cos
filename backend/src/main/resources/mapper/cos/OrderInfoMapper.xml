@@ -37,6 +37,7 @@
         from
         order_info oi
         left join user_info ui on (ui.id = oi.user_id)
+        left join staff_info si on (si.id = oi.staff_ids)
         where 1 = 1
         <if test="orderInfo.code != null and orderInfo.code != ''">
             AND di.code LIKE CONCAT('%',#{orderInfo.code},'%')
@@ -49,6 +50,12 @@
         </if>
         <if test="orderInfo.phone != null and orderInfo.phone != ''">
             AND ui.phone LIKE CONCAT('%',#{orderInfo.phone},'%')
+        </if>
+        <if test="orderInfo.userId != null">
+            AND ui.user_id = #{orderInfo.userId}
+        </if>
+        <if test="orderInfo.staffIds != null and orderInfo.staffIds != ''">
+            AND si.user_id = #{orderInfo.staffIds}
         </if>
         order by oi.create_date desc
     </select>

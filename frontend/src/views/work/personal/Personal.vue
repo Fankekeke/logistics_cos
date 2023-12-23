@@ -1,7 +1,11 @@
 <template>
   <a-row :gutter="20">
-    <a-col :span="6">
+    <a-col :span="8">
       <a-card :loading="loading" :bordered="false">
+        <div style="text-align: center;margin-bottom: 15px">
+          <a-icon type="wallet" theme="twoTone" style="font-size: 60px"/>
+          <p style="font-size: 20px;margin-top: 15px;margin-bottom: 15px">余额 {{ price }} 元</p>
+        </div>
         <a-form :form="form" layout="vertical">
           <a-row :gutter="20">
             <a-col :span="12">
@@ -73,7 +77,7 @@
         </a-button>
       </a-card>
     </a-col>
-    <a-col :span="18">
+    <a-col :span="16">
       <div style="background:#ECECEC; padding:30px;margin-top: 30px">
         <a-card :bordered="false">
           <a-spin :spinning="dataLoading">
@@ -124,7 +128,8 @@ export default {
       fileList: [],
       previewVisible: false,
       previewImage: '',
-      expertInfo: null
+      expertInfo: null,
+      price: 0
     }
   },
   mounted () {
@@ -155,6 +160,7 @@ export default {
         this.expertInfo = r.data.staff
         this.setFormValues(this.expertInfo)
         this.courseInfo = r.data.order
+        this.price = this.expertInfo.price
         this.dataLoading = false
       })
     },
@@ -188,6 +194,9 @@ export default {
         if (key === 'images') {
           this.fileList = []
           this.imagesInit(expert['images'])
+        }
+        if (key === 'sex') {
+          expert[key] = expert[key].toString()
         }
         if (fields.indexOf(key) !== -1) {
           this.form.getFieldDecorator(key)

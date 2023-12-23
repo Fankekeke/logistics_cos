@@ -12,7 +12,7 @@
       <a-row :gutter="20">
         <a-col :span="12">
           <a-form-item label='账户余额' v-bind="formItemLayout">
-            <a-input-number style="width: 100%" v-decorator="[
+            <a-input-number disabled style="width: 100%" v-decorator="[
             'accountPrice',
             { rules: [{ required: true, message: '请输入价格!' }] }
             ]" :min="0.1" :step="0.1"/>
@@ -23,7 +23,7 @@
             <a-input-number style="width: 100%" v-decorator="[
             'unitPrice',
             { rules: [{ required: true, message: '请输入价格!' }] }
-            ]" :min="0.1" :step="0.1"/>
+            ]" :min="0.1" :step="0.1" :max="accountPrice"/>
           </a-form-item>
         </a-col>
       </a-row>
@@ -72,7 +72,8 @@ export default {
       fileList: [],
       previewVisible: false,
       previewImage: '',
-      staffInfo: null
+      staffInfo: null,
+      accountPrice: 0
     }
   },
   mounted () {
@@ -82,6 +83,7 @@ export default {
     getStaff () {
       this.$get(`/cos/staff-info/detail/${this.currentUser.userId}`).then((r) => {
         this.staffInfo = r.data.data
+        this.accountPrice = this.staffInfo.price
         this.form.setFieldsValue({'accountPrice': this.staffInfo.price})
       })
     },
@@ -107,14 +109,11 @@ export default {
       this.$emit('close')
     },
     handleSubmit () {
-      // 获取图片List
-      let images = []
-      this.fileList.forEach(image => {
-        images.push(image.response)
-      })
+      if (this.accountPrice === 0) {
+        this.$message.error('账户余额为0，无法提现')
+        return
+      }
       this.form.validateFields((err, values) => {
-        values.merchantId = this.currentUser.userId
-        values.images = images.length > 0 ? images.join(',') : null
         if (!err) {
           this.loading = true
           values.staffId = this.currentUser.userId

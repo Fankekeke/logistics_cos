@@ -165,9 +165,20 @@ public class OrderInfoController {
      *
      * @return 结果
      */
-    @GetMapping("/homeData/admin")
+    @GetMapping("/admin/homeData")
     public R homeDataByAdmin() {
         return R.ok(orderInfoService.homeDataByAdmin());
+    }
+
+    /**
+     * 员工获取统计信息
+     *
+     * @param userId 员工ID
+     * @return 结果
+     */
+    @GetMapping("/homeData")
+    public R selectHomeDataByMerchant(@RequestParam("userId") Integer userId) {
+        return R.ok(orderInfoService.selectHomeDataByMerchant(userId));
     }
 
     /**

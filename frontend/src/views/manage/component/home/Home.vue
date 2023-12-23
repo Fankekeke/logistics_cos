@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a-row style="margin-top: 15px" v-if="user.roleId != 76 ">
+    <a-row style="margin-top: 15px" v-if="user.roleId != 75 ">
       <a-col :span="24">
         <div style="background: #ECECEC; padding: 30px;">
           <a-row :gutter="16">
@@ -56,7 +56,7 @@
         </div>
       </a-col>
     </a-row>
-    <a-row style="margin-top: 15px" v-if="user.roleId != 76" :gutter="15">
+    <a-row style="margin-top: 15px" v-if="user.roleId != 75" :gutter="15">
       <a-col :span="12">
         <a-card hoverable :bordered="false" style="width: 100%">
           <a-skeleton active v-if="loading" />
@@ -77,7 +77,7 @@
 <!--          <apexchart v-if="!loading" type="donut" height="270" :options="chartOptions2" :series="series2"></apexchart>-->
 <!--        </a-card>-->
 <!--      </a-col>-->
-      <a-col :span="15" v-if="user.roleId != 76">
+      <a-col :span="15" v-if="user.roleId != 75">
         <a-card hoverable :loading="loading" :bordered="false" title="公告信息" style="margin-top: 15px">
           <div style="padding: 0 22px">
             <a-list item-layout="vertical" :pagination="pagination" :data-source="bulletinList">
@@ -270,7 +270,7 @@ export default {
   methods: {
     selectHomeData () {
       if (this.user.roleId === '74') {
-        this.$get('/cos/merchant-info/admin/homeData').then((r) => {
+        this.$get('/cos/order-info/admin/homeData').then((r) => {
           let titleData = { merchantNum: r.data.merchantNum, staffNum: r.data.staffNum, totalPrice: r.data.orderPrice, totalNum: r.data.orderNum }
           this.$emit('setAdminTitle', titleData)
           this.titleData.monthOrderNum = r.data.monthOrderNum
@@ -291,8 +291,8 @@ export default {
           this.chartOptions.xaxis.categories = Array.from(r.data.priceDayList, ({days}) => days)
         })
       }
-      if (this.user.roleId === '75') {
-        this.$get('/cos/merchant-info/homeData', {userId: this.user.userId}).then((r) => {
+      if (this.user.roleId === '76') {
+        this.$get('/cos/order-info/homeData', {userId: this.user.userId}).then((r) => {
           let titleData = { memberNum: r.data.memberNum, staffNum: r.data.staffNum, totalPrice: r.data.orderPrice, totalNum: r.data.orderNum }
           this.$emit('setTitle', titleData)
           this.titleData.monthOrderNum = r.data.monthOrderNum

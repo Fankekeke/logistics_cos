@@ -16,7 +16,7 @@
             <div class="head-info-time">上次登录时间：{{user.lastLoginTime ? user.lastLoginTime : '第一次访问系统'}}</div>
           </div>
         </a-col>
-        <a-col :span="24" v-if="user.roleId == 76">
+        <a-col :span="24" v-if="user.roleId == 75">
           <work></work>
         </a-col>
         <a-col :span="12">
@@ -25,7 +25,7 @@
               <a-col :span="4"></a-col>
               <a-col :span="4"></a-col>
               <a-col :span="4">
-                <head-info title="商家数量" :content="titleAdminData.merchantNum" :center="false" :bordered="false"/>
+                <head-info title="用户数量" :content="titleAdminData.merchantNum" :center="false" :bordered="false"/>
               </a-col>
               <a-col :span="4">
                 <head-info title="员工数量" :content="titleAdminData.staffNum" :center="false" :bordered="false"/>
@@ -40,12 +40,8 @@
             <a-row class="more-info" v-if="user.roleId == 75">
               <a-col :span="4"></a-col>
               <a-col :span="4"></a-col>
-              <a-col :span="4">
-                <head-info title="会员数量" :content="titleData.memberNum" :center="false" :bordered="false"/>
-              </a-col>
-              <a-col :span="4">
-                <head-info title="员工数量" :content="titleData.staffNum" :center="false" :bordered="false"/>
-              </a-col>
+              <a-col :span="4"></a-col>
+              <a-col :span="4"></a-col>
               <a-col :span="4">
                 <head-info title="总收益" :content="titleData.totalPrice" :center="false" :bordered="false"/>
               </a-col>
