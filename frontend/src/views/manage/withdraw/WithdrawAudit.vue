@@ -9,6 +9,13 @@
       </a-button>
     </template>
     <div style="font-size: 13px;font-family: SimHei" v-if="withdrawData !== null">
+      <div style="padding-left: 24px;padding-right: 24px;margin-bottom: 50px;margin-top: 50px">
+        <a-steps :current="current" progress-dot size="small">
+          <a-step title="已提交" />
+          <a-step title="正在审核" />
+          <a-step :title="currentText" />
+        </a-steps>
+      </div>
       <a-row style="padding-left: 24px;padding-right: 24px;">
         <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">基础信息</span></a-col>
         <a-col :span="8"><b>员工编号：</b>
@@ -97,12 +104,25 @@ export default {
       reserveInfo: null,
       durgList: [],
       logisticsList: [],
-      userInfo: null
+      userInfo: null,
+      current: 0,
+      currentText: '审核结果'
     }
   },
   watch: {
     withdrawShow: function (value) {
       if (value) {
+        if (this.withdrawData.status == 0) {
+          this.current = 1
+        }
+        if (this.withdrawData.status == 1) {
+          this.current = 2
+          this.currentText = '审核完成'
+        }
+        if (this.withdrawData.status == 2) {
+          this.current = 2
+          this.currentText = '审核驳回'
+        }
         this.imagesInit(this.withdrawData.images)
       }
     }

@@ -1,6 +1,6 @@
 <template>
   <a-row :gutter="20">
-    <a-col :span="6">
+    <a-col :span="8">
       <a-card :loading="loading" :bordered="false">
         <a-form :form="form" layout="vertical">
           <a-row :gutter="20">
@@ -97,7 +97,7 @@
         </a-button>
       </a-card>
     </a-col>
-    <a-col :span="18">
+    <a-col :span="16">
       <div style="background:#ECECEC; padding:30px;margin-top: 30px">
         <a-card :bordered="false">
           <a-spin :spinning="dataLoading">

@@ -64,9 +64,10 @@
         </template>
         <template slot="operation" slot-scope="text, record">
           <a-icon type="file-search" @click="orderViewOpen(record)" title="详 情"></a-icon>
-          <!--          <a-icon v-if="record.status == 2" type="setting" theme="twoTone" twoToneColor="#4a9ff5" @click="orderComplete(record)" title="订单完成" style="margin-left: 15px"></a-icon>-->
-          <!--          <a-icon v-if="record.taskShop == null && record.returnShop == null" type="setting" theme="twoTone" twoToneColor="#4a9ff5" @click="orderAuditOpen(record)" title="修 改" style="margin-left: 15px"></a-icon>-->
-          <a-icon v-if="record.type == 1" type="cluster" @click="orderMapOpen(record)" title="地 图" style="margin-left: 15px"></a-icon>
+          <a-icon type="cluster" @click="orderMapOpen(record)" title="地 图" style="margin-left: 15px"></a-icon>
+          <a-icon v-if="record.status ==  0" type="alipay" @click="orderPay(record)" title="支 付" style="margin-left: 15px"></a-icon>
+          <a-icon v-if="record.status == 2" type="check" @click="orderComplete(record)" title="订单完成" style="margin-left: 15px"></a-icon>
+          <a-icon v-if="record.evaluateId == null && record.status == 3" type="reconciliation" theme="twoTone" twoToneColor="#4a9ff5" @click="orderEvaluateOpen(record)" title="评 价" style="margin-left: 15px"></a-icon>
         </template>
       </a-table>
     </div>
@@ -97,6 +98,12 @@
       :orderShow="orderMapView.visiable"
       :orderData="orderMapView.data">
     </MapView>
+    <order-evaluate
+      @close="handleorderAddClose"
+      @success="handleorderAddSuccess"
+      :evaluateAddVisiable="orderEvaluateView.visiable"
+      :orderData="orderEvaluateView.data">
+    </order-evaluate>
   </a-card>
 </template>
 
@@ -108,12 +115,13 @@ import OrderAdd from './OrderAdd'
 import OrderAudit from './OrderAudit'
 import OrderView from './OrderView'
 import OrderStatus from './OrderStatus.vue'
+import OrderEvaluate from './OrderEvaluate'
 import MapView from '../../manage/map/Map.vue'
 moment.locale('zh-cn')
 
 export default {
   name: 'order',
-  components: {OrderView, OrderAudit, RangeDate, OrderStatus, OrderAdd, MapView},
+  components: {OrderView, OrderAudit, RangeDate, OrderStatus, OrderAdd, MapView, OrderEvaluate},
   data () {
     return {
       advanced: false,
@@ -154,7 +162,11 @@ export default {
         visiable: false,
         data: null
       },
-      userList: []
+      userList: [],
+      orderEvaluateView: {
+        visiable: false,
+        data: null
+      }
     }
   },
   computed: {
@@ -281,6 +293,35 @@ export default {
     this.fetch()
   },
   methods: {
+    orderPay (record) {
+      let data = { outTradeNo: record.code, subject: `${record.createDate}缴费信息`, totalAmount: record.afterOrderPrice, body: '' }
+      this.$post('/cos/pay/test', data).then((r) => {
+        // console.log(r.data.msg)
+        // 添加之前先删除一下，如果单页面，页面不刷新，添加进去的内容会一直保留在页面中，二次调用form表单会出错
+        const divForm = document.getElementsByTagName('div')
+        if (divForm.length) {
+          document.body.removeChild(divForm[0])
+        }
+        const div = document.createElement('div')
+        div.innerHTML = r.data.msg // data就是接口返回的form 表单字符串
+        // console.log(div.innerHTML)
+        document.body.appendChild(div)
+        document.forms[0].setAttribute('target', '_self') // 新开窗口跳转
+        document.forms[0].submit()
+      })
+    },
+    handleorderAddClose () {
+      this.orderEvaluateView.visiable = false
+    },
+    handleorderAddSuccess () {
+      this.orderEvaluateView.visiable = false
+      this.$message.success('新增评价成功')
+      this.search()
+    },
+    orderEvaluateOpen (row) {
+      this.orderEvaluateView.data = row
+      this.orderEvaluateView.visiable = true
+    },
     orderComplete (row) {
       this.$get(`/cos/order-info/audit`, {
         'orderCode': row.code,
@@ -336,14 +377,6 @@ export default {
     },
     add () {
       this.orderAdd.visiable = true
-    },
-    handleorderAddClose () {
-      this.orderAdd.visiable = false
-    },
-    handleorderAddSuccess () {
-      this.orderAdd.visiable = false
-      this.$message.success('添加平台订单成功')
-      this.search()
     },
     edit (record) {
       this.$refs.orderEdit.setFormValues(record)

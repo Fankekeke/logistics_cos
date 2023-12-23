@@ -5,6 +5,14 @@
         关闭
       </a-button>
     </template>
+    <div style="padding-left: 24px;padding-right: 24px;margin-bottom: 50px;margin-top: 50px">
+      <a-steps :current="current" progress-dot size="small">
+        <a-step title="未支付" />
+        <a-step title="待接单" />
+        <a-step title="配送中" />
+        <a-step title="已完成" />
+      </a-steps>
+    </div>
     <div style="font-size: 13px;font-family: SimHei" v-if="userInfo !== null">
       <a-row style="padding-left: 24px;padding-right: 24px;">
         <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">用户信息</span></a-col>
@@ -259,6 +267,18 @@ export default {
   watch: {
     orderShow: function (value) {
       if (value) {
+        if (this.orderData.status == 0) {
+          this.current = 1
+        }
+        if (this.orderData.status == 1) {
+          this.current = 2
+        }
+        if (this.orderData.status == 2) {
+          this.current = 3
+        }
+        if (this.orderData.status == 3) {
+          this.current = 4
+        }
         this.dataInit(this.orderData.id)
       }
     }

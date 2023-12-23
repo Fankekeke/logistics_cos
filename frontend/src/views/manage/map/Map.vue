@@ -17,73 +17,34 @@
         <a-col :span="9" style="height: 100%;box-shadow: 3px 3px 3px rgba(0, 0, 0, .2);color:#fff">
           <div>
             <div class="scenicInfo" style="height: 100vh; overflow-y: auto;padding-left: 5px;overflow-x: hidden">
-              <a-carousel autoplay style="height: 300px;" v-if="merchantInfo.images !== undefined && merchantInfo.images !== ''">
-                <div style="width: 100%;height: 300px" v-for="(item, index) in merchantInfo.images.split(',')" :key="index">
-                  <img :src="'http://127.0.0.1:9527/imagesWeb/' + item" style="width: 100%;height: 100%">
-                </div>
-              </a-carousel>
-              <a-card :title="merchantInfo.name" :bordered="false">
-              </a-card>
+              <div v-if="orderInfo != null">
+                <a-carousel autoplay style="height: 300px;" v-if="orderInfo.images !== null && orderInfo.images !== ''">
+                  <div style="width: 100%;height: 300px" v-for="(item, index) in orderInfo.images.split(',')" :key="index">
+                    <img :src="'http://127.0.0.1:9527/imagesWeb/' + item" style="width: 100%;height: 100%">
+                  </div>
+                </a-carousel>
+                <a-card :title="orderInfo.orderName" :bordered="false">
+                  <div style="text-align: center;margin-top: 20px;font-family: SimHei;">
+                    <a-icon type="smile" theme="twoTone" style="font-size: 80px"/>
+                    <p v-if="orderInfo.status == 0" style="font-size: 20px;margin-top: 15px;margin-bottom: 15px">请支付订单！</p>
+                    <p v-if="orderInfo.status == 1" style="font-size: 20px;margin-top: 15px;margin-bottom: 15px">等待配送员接单！</p>
+                    <p v-if="orderInfo.status == 2" style="font-size: 20px;margin-top: 15px;margin-bottom: 15px">配送员正在配送中！</p>
+                    <p v-if="orderInfo.status == 3" style="font-size: 20px;margin-top: 15px;margin-bottom: 15px">订单已完成！</p>
+                  </div>
+                  <div style="padding-left: 24px;padding-right: 24px;margin-bottom: 50px;margin-top: 50px" v-if="orderInfo != null">
+                    <a-steps :current="orderInfo.status" progress-dot size="small">
+                      <a-step title="未支付" />
+                      <a-step title="待接单" />
+                      <a-step title="配送中" />
+                      <a-step title="已完成" />
+                    </a-steps>
+                  </div>
+                </a-card>
+              </div>
               <div style="font-size: 12px;font-family: SimHei;color: #404040;margin-top: 15px">
-                <div style="font-size: 12px;font-family: SimHei" v-if="orderInfo !== null">
-                  <a-row style="padding-left: 24px;padding-right: 24px;">
-                    <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">订单信息</span></a-col>
-                    <a-col :span="8"><b>订单编号：</b>
-                      {{ orderInfo.code }}
-                    </a-col>
-                    <a-col :span="8"><b>订单价格：</b>
-                      {{ orderInfo.orderPrice ? orderInfo.orderPrice + '元' : '- -' }}
-                    </a-col>
-                    <a-col :span="8"><b>折后价格：</b>
-                      {{ orderInfo.afterOrderPrice ? orderInfo.afterOrderPrice + '元' : '- -' }}
-                    </a-col>
-                  </a-row>
-                  <br/>
-                  <a-row style="padding-left: 24px;padding-right: 24px;">
-                    <a-col :span="8"><b>会员折扣：</b>
-                      {{ orderInfo.discount }} 元
-                    </a-col>
-                    <a-col :span="8"><b>订单积分：</b>
-                      {{ orderInfo.integral }}
-                    </a-col>
-                    <a-col :span="8"><b>订单状态：</b>
-                      <span v-if="orderInfo.status === '0'" style="color: red">未支付</span>
-                      <span v-if="orderInfo.status === '1'" style="color: blue">已支付</span>
-                      <span v-if="orderInfo.status === '2'" style="color: orange">配送中</span>
-                      <span v-if="orderInfo.status === '3'" style="color: green">已收货</span>
-                    </a-col>
-                  </a-row>
-                  <br/>
-                  <a-row style="padding-left: 24px;padding-right: 24px;" v-if="orderInfo.type === '1'">
-                    <a-col :span="8"><b>订单类型：</b>
-                      <span v-if="orderInfo.type === '0'">堂食</span>
-                      <span v-if="orderInfo.type === '1'">外送</span>
-                    </a-col>
-                    <a-col :span="8"><b>下单时间：</b>
-                      {{ orderInfo.createDate }}
-                    </a-col>
-                    <a-col :span="8"><b>公里数：</b>
-                      {{ orderInfo.kilometre }}公里
-                    </a-col>
-                  </a-row>
-                  <br/>
-                  <a-row style="padding-left: 24px;padding-right: 24px;" v-if="orderInfo.type === '1'">
-                    <a-col :span="8"><b>配送价格：</b>
-                      {{ orderInfo.distributionPrice ? orderInfo.distributionPrice + '元' : '- -' }}
-                    </a-col>
-                    <a-col :span="8"><b>支付时间：</b>
-                      {{ orderInfo.payDate ? orderInfo.payDate : '- -' }}
-                    </a-col>
-                    <a-col :span="8"><b>送达时间：</b>
-                      {{ orderInfo.serviceDate }}
-                    </a-col>
-                  </a-row>
-                  <br/>
-                </div>
-                <br/>
                 <div style="font-size: 12px;font-family: SimHei" v-if="userInfo !== null">
                   <a-row style="padding-left: 24px;padding-right: 24px;">
-                    <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">用户信息</span></a-col>
+                    <a-col style="margin-bottom: 15px"><span style="font-size: 14px;font-weight: 650;color: #000c17">用户信息</span></a-col>
                     <a-col :span="8"><b>会员编号：</b>
                       {{ userInfo.code }}
                     </a-col>
@@ -100,78 +61,127 @@
                       {{ userInfo.phone }}
                     </a-col>
                   </a-row>
-                  <br/>
                 </div>
                 <br/>
-                <div style="font-size: 12px;font-family: SimHei" v-if="merchantInfo !== null">
+                <br/>
+                <div style="font-size: 13px;font-family: SimHei" v-if="orderInfo !== null">
                   <a-row style="padding-left: 24px;padding-right: 24px;">
-                    <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">商家信息</span></a-col>
-                    <a-col :span="8"><b>商家编号：</b>
-                      {{ merchantInfo.code }}
+                    <a-col style="margin-bottom: 15px"><span style="font-size: 14px;font-weight: 650;color: #000c17">订单信息</span></a-col>
+                    <a-col :span="8"><b>订单编号：</b>
+                      {{ orderInfo.code }}
                     </a-col>
-                    <a-col :span="16"><b>商家名称：</b>
-                      {{ merchantInfo.name ? merchantInfo.name : '- -' }}
+                    <a-col :span="8"><b>订单名称：</b>
+                      {{ orderInfo.orderName ? orderInfo.orderName : '- -' }}
+                    </a-col>
+                    <a-col :span="8"><b>总价格：</b>
+                      {{ orderInfo.orderPrice ? orderInfo.orderPrice + '元' : '- -' }}
                     </a-col>
                   </a-row>
                   <br/>
                   <a-row style="padding-left: 24px;padding-right: 24px;">
-                    <a-col :span="8"><b>联系方式：</b>
-                      {{ merchantInfo.phone }}
+                    <a-col :span="8"><b>公里数：</b>
+                      {{ orderInfo.kilometre ? orderInfo.kilometre : '- -' }}KM
                     </a-col>
-                    <a-col :span="8"><b>菜系：</b>
-                      {{ merchantInfo.dishes ? merchantInfo.dishes : '- -' }}
+                    <a-col :span="8"><b>配送价格：</b>
+                      {{ orderInfo.distributionPrice ? orderInfo.distributionPrice : '- -' }}元
                     </a-col>
-                    <a-col :span="8"><b>负责人：</b>
-                      {{ merchantInfo.principal }}
+                    <a-col :span="8"><b>折扣后价格：</b>
+                      {{ orderInfo.afterOrderPrice ? orderInfo.afterOrderPrice : '- -' }}元
                     </a-col>
                   </a-row>
                   <br/>
                   <a-row style="padding-left: 24px;padding-right: 24px;">
-                    <a-col :span="24"><b>地 址：</b>
-                      {{ merchantInfo.address ? merchantInfo.address : '- -' }}
+                    <a-col :span="8"><b>创建时间：</b>
+                      {{ orderInfo.createDate }}
+                    </a-col>
+                    <a-col :span="8"><b>付款时间：</b>
+                      {{ orderInfo.payDate }}
                     </a-col>
                   </a-row>
-                  <br/>
                 </div>
                 <br/>
-                <div style="font-size: 12px;font-family: SimHei" v-if="orderItemInfo.length !== 0">
-                  <a-row style="padding-left: 24px;padding-right: 24px;">
-                    <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">购买菜品</span></a-col>
-                    <a-table :columns="columns" :data-source="orderItemInfo" :pagination="false"></a-table>
-                  </a-row>
-                  <br/>
-                </div>
                 <br/>
-                <div style="font-size: 12px;font-family: SimHei" v-if="addressInfo !== null">
+                <div style="font-size: 13px;font-family: SimHei" v-if="startAddressInfo !== null">
                   <a-row style="padding-left: 24px;padding-right: 24px;">
-                    <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">收货地址</span></a-col>
-                    <a-col :span="8"><b>收货编号：</b>
-                      {{ addressInfo.code }}
-                    </a-col>
+                    <a-col style="margin-bottom: 15px"><span style="font-size: 14px;font-weight: 650;color: #000c17">发货地址</span></a-col>
                     <a-col :span="8"><b>详细地址：</b>
-                      {{ addressInfo.address ? addressInfo.address : '- -' }}
+                      {{ startAddressInfo.address }}
                     </a-col>
                     <a-col :span="8"><b>联系人：</b>
-                      {{ addressInfo.contactPerson ? addressInfo.contactPerson : '- -' }}
+                      {{ startAddressInfo.contactPerson ? startAddressInfo.contactPerson : '- -' }}
                     </a-col>
-                    <br/>
-                    <br/>
                     <a-col :span="8"><b>联系方式：</b>
-                      {{ addressInfo.contactMethod }}
+                      {{ startAddressInfo.contactMethod ? startAddressInfo.contactMethod : '- -' }}
                     </a-col>
                   </a-row>
                   <br/>
                 </div>
                 <br/>
-                <div style="font-size: 12px;font-family: SimHei" v-if="staffInfo !== null">
+                <div style="font-size: 13px;font-family: SimHei" v-if="endAddressInfo !== null">
                   <a-row style="padding-left: 24px;padding-right: 24px;">
-                    <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">配送员信息</span></a-col>
+                    <a-col style="margin-bottom: 15px"><span style="font-size: 14px;font-weight: 650;color: #000c17">送货地址</span></a-col>
+                    <a-col :span="8"><b>详细地址：</b>
+                      {{ endAddressInfo.address }}
+                    </a-col>
+                    <a-col :span="8"><b>联系人：</b>
+                      {{ endAddressInfo.contactPerson ? endAddressInfo.contactPerson : '- -' }}
+                    </a-col>
+                    <a-col :span="8"><b>联系方式：</b>
+                      {{ endAddressInfo.contactMethod ? endAddressInfo.contactMethod : '- -' }}
+                    </a-col>
+                  </a-row>
+                  <br/>
+                </div>
+                <br/>
+                <div style="font-size: 13px;font-family: SimHei" v-if="discountInfo !== null">
+                  <a-row style="padding-left: 24px;padding-right: 24px;">
+                    <a-col style="margin-bottom: 15px"><span style="font-size: 14px;font-weight: 650;color: #000c17">优惠信息</span></a-col>
+                    <a-col :span="8"><b>优惠券编号：</b>
+                      {{ discountData.code }}
+                    </a-col>
+                    <a-col :span="8"><b>优惠券名称：</b>
+                      {{ discountData.couponName ? discountData.couponName : '- -' }}
+                    </a-col>
+                    <a-col :span="8"><b>优惠券类型：</b>
+                      <span v-if="discountData.type == 1">满减</span>
+                      <span v-if="discountData.type == 2">折扣</span>
+                    </a-col>
+                    <a-col :span="8"><b>发放时间：</b>
+                      {{ discountData.createDate }}
+                    </a-col>
+                  </a-row>
+                  <br/>
+                  <a-row style="padding-left: 24px;padding-right: 24px;" v-if="discountData.type == 1">
+                    <a-col :span="8"><b>满减金额：</b>
+                      {{ discountData.discountPrice }} 元
+                    </a-col>
+                    <a-col :span="8"><b>门槛金额：</b>
+                      {{ discountData.threshold }} 元
+                    </a-col>
+                  </a-row>
+                  <br/>
+                  <a-row style="padding-left: 24px;padding-right: 24px;" v-if="discountData.type == 2">
+                    <a-col :span="8"><b>折扣：</b>
+                      {{ discountData.rebate }} 折
+                    </a-col>
+                  </a-row>
+                  <br/>
+                  <a-row style="padding-left: 24px;padding-right: 24px;">
+                    <a-col :span="24"><b>备注：</b>
+                      {{ discountData.content }}
+                    </a-col>
+                  </a-row>
+                </div>
+                <br/>
+                <div style="font-size: 13px;font-family: SimHei" v-if="staffInfo !== null">
+                  <a-row style="padding-left: 24px;padding-right: 24px;">
+                    <a-col style="margin-bottom: 15px"><span style="font-size: 14px;font-weight: 650;color: #000c17">配送员信息</span></a-col>
                     <a-col :span="8"><b>员工姓名：</b>
                       {{ staffInfo.name }}
                     </a-col>
                     <a-col :span="8"><b>性别：</b>
-                      <span v-if="orderInfo.type === '1'">男</span>
-                      <span v-if="orderInfo.type === '2'">女</span>
+                      <span v-if="staffInfo.sex == '1'">男</span>
+                      <span v-if="staffInfo.sex == '2'">女</span>
                     </a-col>
                     <a-col :span="8"><b>员工工号：</b>
                       {{ staffInfo.code }}
@@ -180,9 +190,9 @@
                   <br/>
                 </div>
                 <br/>
-                <div style="font-size: 12px;font-family: SimHei" v-if="evaluateInfo !== null">
+                <div style="font-size: 13px;font-family: SimHei" v-if="evaluateInfo !== null">
                   <a-row style="padding-left: 24px;padding-right: 24px;">
-                    <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">订单评价</span></a-col>
+                    <a-col style="margin-bottom: 15px"><span style="font-size: 14px;font-weight: 650;color: #000c17">订单评价</span></a-col>
                     <a-col :span="8"><b>评价分数：</b>
                       <a-rate :default-value="evaluateInfo.score" disabled />
                     </a-col>
@@ -226,12 +236,11 @@ export default {
     return {
       userInfo: null,
       orderInfo: null,
-      merchantInfo: null,
-      orderItemInfo: [],
-      addressInfo: null,
+      startAddressInfo: null,
+      endAddressInfo: null,
+      discountInfo: null,
       staffInfo: null,
       evaluateInfo: null,
-      staffList: [],
       communityRent: 0,
       rentShow: false,
       communityShow: false,
@@ -269,40 +278,6 @@ export default {
     }
   },
   computed: {
-    columns () {
-      return [{
-        title: '菜品名称',
-        dataIndex: 'dishesName'
-      }, {
-        title: '图片',
-        dataIndex: 'images',
-        customRender: (text, record, index) => {
-          if (!record.images) return <a-avatar shape="square" icon="user" />
-          return <a-popover>
-            <template slot="content">
-              <a-avatar shape="square" size={132} icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images.split(',')[0] } />
-            </template>
-            <a-avatar shape="square" icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images.split(',')[0] } />
-          </a-popover>
-        }
-      }, {
-        title: '购买数量',
-        dataIndex: 'amount'
-      }, {
-        title: '单价',
-        dataIndex: 'unitPrice'
-      }, {
-        title: '总价格',
-        dataIndex: 'totalPrice',
-        customRender: (text, row, index) => {
-          if (text !== null) {
-            return text
-          } else {
-            return '- -'
-          }
-        }
-      }]
-    }
   },
   watch: {
     'orderShow': function (value) {
@@ -316,15 +291,15 @@ export default {
       this.$get(`/cos/order-info/${orderId}`).then((r) => {
         this.userInfo = r.data.user
         this.orderInfo = r.data.order
-        this.merchantInfo = r.data.merchant
-        this.orderItemInfo = r.data.orderItem
-        this.addressInfo = r.data.address
+        this.startAddressInfo = r.data.startAddress
+        this.endAddressInfo = r.data.endAddress
+        this.discountInfo = r.data.discount
         this.staffInfo = r.data.staff
         this.evaluateInfo = r.data.evaluate
         setTimeout(() => {
           baiduMap.initMap('areas')
           this.getLocal()
-          this.navigation(this.addressInfo, this.merchantInfo)
+          this.navigation(this.startAddressInfo, this.endAddressInfo)
         }, 200)
       })
     },
