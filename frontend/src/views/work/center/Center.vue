@@ -8,7 +8,39 @@
             <a-icon key="edit" type="edit" />
             <a-icon key="ellipsis" type="ellipsis" />
           </template>
-          <a-card-meta :title="item.orderName" description="This is the description">
+          <a-card-meta :title="item.orderName">
+            <div slot="description">
+              <div>
+                <a-icon type="user" />
+                {{item.userName}}
+                |
+                <a-icon type="phone" />
+                {{item.phone}}
+                |
+                <a-icon type="appstore" />
+                <span v-if="item.goodsType == 1">文件</span>
+                <span v-if="item.goodsType == 2">食品</span>
+                <span v-if="item.goodsType == 3">蛋糕</span>
+                <span v-if="item.goodsType == 4">数码</span>
+                <span v-if="item.goodsType == 5">证件</span>
+                <span v-if="item.goodsType == 6">药品</span>
+                <span v-if="item.goodsType == 7">海鲜</span>
+                <span v-if="item.goodsType == 8">鲜花</span>
+                <span v-if="item.goodsType == 9">服饰</span>
+                <span v-if="item.goodsType == 10">其他</span>
+              </div>
+              <div style="margin-top: 6px">
+                <a-icon type="compass" />
+                {{item.kilometre}}KM
+                |
+                <a-icon type="dollar" />
+                {{item.afterOrderPrice}}元
+              </div>
+              <div style="margin-top: 6px">
+                <a-icon type="clock-circle-o" />
+                {{moment(item.createDate).format('YYYY-MM-DD HH:mm:ss')}}
+              </div>
+            </div>
             <a-avatar
               slot="avatar"
               shape="square"
@@ -63,6 +95,7 @@ export default {
     this.getExpertInfo(this.currentUser.userId)
   },
   methods: {
+    moment,
     isDuringDate (beginDateStr, endDateStr, curDataStr) {
       let curDate = new Date(curDataStr)
       let beginDate = new Date(beginDateStr)
