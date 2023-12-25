@@ -8,59 +8,6 @@
         关闭
       </a-button>
     </template>
-    <div style="font-size: 13px;font-family: SimHei" v-if="orderInfo !== null">
-      <a-row style="padding-left: 24px;padding-right: 24px;">
-        <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">订单信息</span></a-col>
-        <a-col :span="6"><b>订单编号：</b>
-          {{ orderInfo.code }}
-        </a-col>
-        <a-col :span="6"><b>订单价格：</b>
-          {{ orderInfo.orderPrice ? orderInfo.orderPrice + '元' : '- -' }}
-        </a-col>
-        <a-col :span="6"><b>折后价格：</b>
-          {{ orderInfo.afterOrderPrice ? orderInfo.afterOrderPrice + '元' : '- -' }}
-        </a-col>
-        <a-col :span="6"><b>会员折扣：</b>
-          {{ orderInfo.discount }} 元
-        </a-col>
-      </a-row>
-      <br/>
-      <a-row style="padding-left: 24px;padding-right: 24px;">
-        <a-col :span="6"><b>订单积分：</b>
-          {{ orderInfo.integral }}
-        </a-col>
-        <a-col :span="6"><b>订单状态：</b>
-          <span v-if="orderInfo.status === '0'" style="color: red">未支付</span>
-          <span v-if="orderInfo.status === '1'" style="color: blue">已支付</span>
-          <span v-if="orderInfo.status === '2'" style="color: orange">配送中</span>
-          <span v-if="orderInfo.status === '3'" style="color: green">已收货</span>
-        </a-col>
-        <a-col :span="6"><b>订单类型：</b>
-          <span v-if="orderInfo.type === '0'">堂食</span>
-          <span v-if="orderInfo.type === '1'">外送</span>
-        </a-col>
-        <a-col :span="6"><b>下单时间：</b>
-          {{ orderInfo.createDate }}
-        </a-col>
-      </a-row>
-      <br/>
-      <a-row style="padding-left: 24px;padding-right: 24px;" v-if="orderInfo.type === '1'">
-        <a-col :span="6"><b>公里数：</b>
-          {{ orderInfo.kilometre }}公里
-        </a-col>
-        <a-col :span="6"><b>配送价格：</b>
-          {{ orderInfo.distributionPrice ? orderInfo.distributionPrice + '元' : '- -' }}
-        </a-col>
-        <a-col :span="6"><b>支付时间：</b>
-          {{ orderInfo.payDate ? orderInfo.payDate : '- -' }}
-        </a-col>
-        <a-col :span="6"><b>送达时间：</b>
-          {{ orderInfo.serviceDate }}
-        </a-col>
-      </a-row>
-      <br/>
-    </div>
-    <br/>
     <div style="font-size: 13px;font-family: SimHei" v-if="userInfo !== null">
       <a-row style="padding-left: 24px;padding-right: 24px;">
         <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">用户信息</span></a-col>
@@ -80,59 +27,110 @@
       <br/>
     </div>
     <br/>
-    <div style="font-size: 13px;font-family: SimHei" v-if="merchantInfo !== null">
+    <div style="font-size: 13px;font-family: SimHei" v-if="orderInfo !== null">
       <a-row style="padding-left: 24px;padding-right: 24px;">
-        <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">商家信息</span></a-col>
-        <a-col :span="6"><b>商家编号：</b>
-          {{ merchantInfo.code }}
+        <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">订单信息</span></a-col>
+        <a-col :span="6"><b>订单编号：</b>
+          {{ orderInfo.code }}
         </a-col>
-        <a-col :span="6"><b>商家名称：</b>
-          {{ merchantInfo.name ? merchantInfo.name : '- -' }}
+        <a-col :span="6"><b>订单名称：</b>
+          {{ orderInfo.orderName ? orderInfo.orderName : '- -' }}
         </a-col>
-        <a-col :span="6"><b>地 址：</b>
-          {{ merchantInfo.address ? merchantInfo.address : '- -' }}
+        <a-col :span="6"><b>总价格：</b>
+          {{ orderInfo.orderPrice ? orderInfo.orderPrice + '元' : '- -' }}
         </a-col>
-        <a-col :span="6"><b>负责人：</b>
-          {{ merchantInfo.principal }}
+        <a-col :span="6"><b>创建时间：</b>
+          {{ orderInfo.createDate }}
         </a-col>
       </a-row>
       <br/>
       <a-row style="padding-left: 24px;padding-right: 24px;">
-        <a-col :span="6"><b>联系方式：</b>
-          {{ merchantInfo.phone }}
+        <a-col :span="6"><b>付款时间：</b>
+          {{ orderInfo.payDate }}
         </a-col>
-        <a-col :span="6"><b>菜系：</b>
-          {{ merchantInfo.dishes ? merchantInfo.dishes : '- -' }}
+        <a-col :span="6"><b>公里数：</b>
+          {{ orderInfo.kilometre ? orderInfo.kilometre : '- -' }}KM
+        </a-col>
+        <a-col :span="6"><b>配送价格：</b>
+          {{ orderInfo.distributionPrice ? orderInfo.distributionPrice : '- -' }}元
+        </a-col>
+        <a-col :span="6"><b>折扣后价格：</b>
+          {{ orderInfo.afterOrderPrice ? orderInfo.afterOrderPrice : '- -' }}元
         </a-col>
       </a-row>
       <br/>
     </div>
     <br/>
-    <div style="font-size: 13px;font-family: SimHei" v-if="orderItemInfo.length !== 0">
+    <div style="font-size: 13px;font-family: SimHei" v-if="startAddressInfo !== null">
       <a-row style="padding-left: 24px;padding-right: 24px;">
-        <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">购买菜品</span></a-col>
-        <a-table :columns="columns" :data-source="orderItemInfo"></a-table>
-      </a-row>
-      <br/>
-    </div>
-    <br/>
-    <div style="font-size: 13px;font-family: SimHei" v-if="addressInfo !== null">
-      <a-row style="padding-left: 24px;padding-right: 24px;">
-        <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">收货地址</span></a-col>
-        <a-col :span="6"><b>收货编号：</b>
-          {{ addressInfo.code }}
-        </a-col>
+        <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">发货地址</span></a-col>
         <a-col :span="6"><b>详细地址：</b>
-          {{ addressInfo.address ? addressInfo.address : '- -' }}
+          {{ startAddressInfo.address }}
         </a-col>
         <a-col :span="6"><b>联系人：</b>
-          {{ addressInfo.contactPerson ? addressInfo.contactPerson : '- -' }}
+          {{ startAddressInfo.contactPerson ? startAddressInfo.contactPerson : '- -' }}
         </a-col>
         <a-col :span="6"><b>联系方式：</b>
-          {{ addressInfo.contactMethod }}
+          {{ startAddressInfo.contactMethod ? startAddressInfo.contactMethod : '- -' }}
         </a-col>
       </a-row>
       <br/>
+    </div>
+    <br/>
+    <div style="font-size: 13px;font-family: SimHei" v-if="endAddressInfo !== null">
+      <a-row style="padding-left: 24px;padding-right: 24px;">
+        <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">送货地址</span></a-col>
+        <a-col :span="6"><b>详细地址：</b>
+          {{ endAddressInfo.address }}
+        </a-col>
+        <a-col :span="6"><b>联系人：</b>
+          {{ endAddressInfo.contactPerson ? endAddressInfo.contactPerson : '- -' }}
+        </a-col>
+        <a-col :span="6"><b>联系方式：</b>
+          {{ endAddressInfo.contactMethod ? endAddressInfo.contactMethod : '- -' }}
+        </a-col>
+      </a-row>
+      <br/>
+    </div>
+    <br/>
+    <div style="font-size: 13px;font-family: SimHei" v-if="discountInfo !== null">
+      <a-row style="padding-left: 24px;padding-right: 24px;">
+        <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">优惠信息</span></a-col>
+        <a-col :span="6"><b>优惠券编号：</b>
+          {{ discountData.code }}
+        </a-col>
+        <a-col :span="6"><b>优惠券名称：</b>
+          {{ discountData.couponName ? discountData.couponName : '- -' }}
+        </a-col>
+        <a-col :span="6"><b>优惠券类型：</b>
+          <span v-if="discountData.type == 1">满减</span>
+          <span v-if="discountData.type == 2">折扣</span>
+        </a-col>
+        <a-col :span="6"><b>发放时间：</b>
+          {{ discountData.createDate }}
+        </a-col>
+      </a-row>
+      <br/>
+      <a-row style="padding-left: 24px;padding-right: 24px;" v-if="discountData.type == 1">
+        <a-col :span="6"><b>满减金额：</b>
+          {{ discountData.discountPrice }} 元
+        </a-col>
+        <a-col :span="6"><b>门槛金额：</b>
+          {{ discountData.threshold }} 元
+        </a-col>
+      </a-row>
+      <br/>
+      <a-row style="padding-left: 24px;padding-right: 24px;" v-if="discountData.type == 2">
+        <a-col :span="6"><b>折扣：</b>
+          {{ discountData.rebate }} 折
+        </a-col>
+      </a-row>
+      <br/>
+      <a-row style="padding-left: 24px;padding-right: 24px;">
+        <a-col :span="24"><b>备注：</b>
+          {{ discountData.content }}
+        </a-col>
+      </a-row>
     </div>
     <br/>
     <div style="font-size: 13px;font-family: SimHei" v-if="staffInfo !== null">
@@ -142,11 +140,32 @@
           {{ staffInfo.name }}
         </a-col>
         <a-col :span="6"><b>性别：</b>
-          <span v-if="orderInfo.type === '1'">男</span>
-          <span v-if="orderInfo.type === '2'">女</span>
+          <span v-if="staffInfo.sex == '1'">男</span>
+          <span v-if="staffInfo.sex == '2'">女</span>
         </a-col>
         <a-col :span="6"><b>员工工号：</b>
           {{ staffInfo.code }}
+        </a-col>
+      </a-row>
+      <br/>
+    </div>
+    <br/>
+    <div style="font-size: 13px;font-family: SimHei" v-if="evaluateInfo !== null">
+      <a-row style="padding-left: 24px;padding-right: 24px;">
+        <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">订单评价</span></a-col>
+        <a-col :span="6"><b>评价分数：</b>
+          <a-rate :default-value="evaluateInfo.score" disabled />
+        </a-col>
+        <a-col :span="6"><b>评价内容：</b>
+          <a-tooltip>
+            <template slot="title">
+              {{ evaluateInfo.content}}
+            </template>
+            {{ evaluateInfo.content.slice(0, 8) }} ...
+          </a-tooltip>
+        </a-col>
+        <a-col :span="6"><b>评价时间：</b>
+          {{ evaluateInfo.createDate ? evaluateInfo.createDate : '- -' }}
         </a-col>
       </a-row>
       <br/>
@@ -254,11 +273,11 @@ export default {
       current: 0,
       userInfo: null,
       orderInfo: null,
-      merchantInfo: null,
-      orderItemInfo: [],
-      addressInfo: null,
+      startAddressInfo: null,
+      endAddressInfo: null,
+      discountInfo: null,
       staffInfo: null,
-      evaluateInfo: null,
+      evaluateInfo: null
       staffId: null,
       staffList: []
     }
@@ -272,17 +291,17 @@ export default {
       this.$get(`/cos/order-info/${orderId}`).then((r) => {
         this.userInfo = r.data.user
         this.orderInfo = r.data.order
-        this.merchantInfo = r.data.merchant
-        this.orderItemInfo = r.data.orderItem
-        this.addressInfo = r.data.address
+        this.startAddressInfo = r.data.startAddress
+        this.endAddressInfo = r.data.endAddress
+        this.discountInfo = r.data.discount
         this.staffInfo = r.data.staff
         this.evaluateInfo = r.data.evaluate
-        this.imagesInit(this.merchantInfo.images)
+        this.imagesInit(this.orderInfo.images)
       })
     },
     selectStaffList () {
-      this.$get(`/cos/staff-info/list`).then((r) => {
-        this.staffList = r.data.user
+      this.$get(`/cos/staff-info/list/online`).then((r) => {
+        this.staffList = r.data.data
       })
     },
     checkDealer () {
@@ -290,7 +309,7 @@ export default {
         this.$message.warn('请选择配送员工')
         return false
       }
-      this.$get(`/cos/order-info/checkDealer`, {orderCode: this.orderInfo.code, staffId: this.staffId}).then((r) => {
+      this.$get(`/cos/order-info/checkOrder`, {orderId: this.orderInfo.id, staffId: this.staffId}).then((r) => {
         this.$emit('success')
       })
     },

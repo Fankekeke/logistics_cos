@@ -4,9 +4,9 @@
       <a-col :span="6" v-for="(item, index) in orderList" :key="index" style="margin-bottom: 30px">
         <a-card hoverable style="width: 100%">
           <template slot="actions" class="ant-card-actions">
-            <a-icon key="setting" type="setting" />
-            <a-icon key="edit" type="edit" />
-            <a-icon key="ellipsis" type="ellipsis" />
+            <a-icon key="setting" type="setting"/>
+            <a-icon key="edit" type="edit" @click="checkOrder(item.id)"/>
+            <a-icon key="ellipsis" type="ellipsis" @click="orderMapOpen(record)"/>
           </template>
           <a-card-meta :title="item.orderName">
             <div slot="description">
@@ -34,7 +34,7 @@
                 {{item.kilometre}}KM
                 |
                 <a-icon type="dollar" />
-                {{item.afterOrderPrice}}元
+                <span style="color: red">{{item.afterOrderPrice * 0.8}}元</span>
               </div>
               <div style="margin-top: 6px">
                 <a-icon type="clock-circle-o" />
@@ -50,12 +50,18 @@
         </a-card>
       </a-col>
     </a-row>
+    <MapView
+      @close="handleorderMapViewClose"
+      :orderShow="orderMapView.visiable"
+      :orderData="orderMapView.data">
+    </MapView>
   </div>
 </template>
 
 <script>
 import {mapState} from 'vuex'
 import moment from 'moment'
+import MapView from '../../manage/map/Map.vue'
 moment.locale('zh-cn')
 function getBase64 (file) {
   return new Promise((resolve, reject) => {
@@ -71,6 +77,7 @@ const formItemLayout = {
 }
 export default {
   name: 'User',
+  components: {MapView},
   computed: {
     ...mapState({
       currentUser: state => state.account.user
@@ -88,7 +95,11 @@ export default {
       previewImage: '',
       expertInfo: null,
       price: 0,
-      orderList: []
+      orderList: [],
+      orderMapView: {
+        visiable: false,
+        data: null
+      }
     }
   },
   mounted () {
@@ -96,6 +107,16 @@ export default {
   },
   methods: {
     moment,
+    orderMapOpen (row) {
+      this.orderMapView.data = row
+      this.orderMapView.visiable = true
+    },
+    checkOrder (orderId) {
+      this.$get(`/cos/order-info/checkOrder`, {orderId, staffId: this.currentUser.userId}).then((r) => {
+        this.$message.success('接单成功！请在订单中心查看')
+        this.getExpertInfo(this.currentUser.userId)
+      })
+    },
     isDuringDate (beginDateStr, endDateStr, curDataStr) {
       let curDate = new Date(curDataStr)
       let beginDate = new Date(beginDateStr)
@@ -104,6 +125,9 @@ export default {
         return true
       }
       return false
+    },
+    handleorderMapViewClose () {
+      this.orderMapView.visiable = false
     },
     getListData (value) {
       let listData = []
