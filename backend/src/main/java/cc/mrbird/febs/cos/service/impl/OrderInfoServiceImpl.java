@@ -98,29 +98,42 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     /**
-     * 员工接单
+     * 员工接单，并通过邮箱向用户发送接单通知。
      *
      * @param orderId 订单ID
      * @param staffId 员工ID
-     * @return 结果
+     * @return 如果接单操作成功则返回true，否则返回false
      */
     @Override
     public boolean checkOrder(Integer orderId, Integer staffId) {
-        // 订单详情
+        // 防止订单为空导致的异常
         OrderInfo orderInfo = this.getById(orderId);
+        if (orderInfo == null) {
+            // 可以记录日志或返回错误信息
+            return false;
+        }
 
         UserInfo userInfo = userInfoService.getById(orderInfo.getUserId());
+        if (userInfo == null) {
+            // 可以记录日志或返回错误信息
+            return false;
+        }
 
         StaffInfo staffInfo = staffInfoService.getById(staffId);
+        if (staffInfo == null) {
+            // 可以记录日志或返回错误信息
+            return false;
+        }
 
         // 邮箱通知
         if (StrUtil.isNotEmpty(userInfo.getMail())) {
             Context context = new Context();
             context.setVariable("today", DateUtil.formatDate(new Date()));
-            context.setVariable("custom", userInfo.getName() + "，您好，消费订单  " + orderInfo.getCode() + " 已被接单，联系方式：" + staffInfo.getPhone());
+            context.setVariable("custom", userInfo.getName() + "，您好，消费订单已被接单，联系方式：" + staffInfo.getPhone());
             String emailContent = templateEngine.process("registerEmail", context);
             mailService.sendHtmlMail(userInfo.getMail(), DateUtil.formatDate(new Date()) + "订单接单", emailContent);
         }
+
         return this.update(Wrappers.<OrderInfo>lambdaUpdate().set(OrderInfo::getStaffIds, staffId).set(OrderInfo::getStatus, 2).eq(OrderInfo::getId, orderId));
     }
 
