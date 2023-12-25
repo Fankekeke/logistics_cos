@@ -277,7 +277,7 @@ export default {
       endAddressInfo: null,
       discountInfo: null,
       staffInfo: null,
-      evaluateInfo: null
+      evaluateInfo: null,
       staffId: null,
       staffList: []
     }
