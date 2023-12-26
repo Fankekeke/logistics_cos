@@ -1,12 +1,15 @@
 <template>
   <div style="background:#ECECEC; padding:30px;width: 100%">
     <a-row :gutter="20">
+      <div style="text-align: center">
+        <a-icon type="folder-open" theme="twoTone" style="font-size: 80px"/>
+        <p style="font-size: 25px">暂无订单</p>
+      </div>
       <a-col :span="6" v-for="(item, index) in orderList" :key="index" style="margin-bottom: 30px">
         <a-card hoverable style="width: 100%">
           <template slot="actions" class="ant-card-actions">
-            <a-icon key="setting" type="setting"/>
-            <a-icon key="edit" type="edit" @click="checkOrder(item.id)"/>
-            <a-icon key="ellipsis" type="ellipsis" @click="orderMapOpen(record)"/>
+            <a-icon key="pushpin" type="pushpin" @click="checkOrder(item.id)"/>
+            <a-icon key="ellipsis" type="ellipsis" @click="orderMapOpen(item)"/>
           </template>
           <a-card-meta :title="item.orderName">
             <div slot="description">
@@ -33,12 +36,12 @@
                 <a-icon type="compass" />
                 {{item.kilometre}}KM
                 |
-                <a-icon type="dollar" />
-                <span style="color: red">{{item.afterOrderPrice * 0.8}}元</span>
+                 <a-icon type="clock-circle-o" />
+                {{moment(item.createDate).format('YYYY-MM-DD HH:mm:ss')}}
               </div>
               <div style="margin-top: 6px">
-                <a-icon type="clock-circle-o" />
-                {{moment(item.createDate).format('YYYY-MM-DD HH:mm:ss')}}
+                收益：
+                <span style="color: red">{{item.afterOrderPrice * 0.8}}元</span>
               </div>
             </div>
             <a-avatar
@@ -139,7 +142,7 @@ export default {
       return listData || []
     },
     getExpertInfo (userId) {
-      this.$get(`/cos/order-info/page`).then((r) => {
+      this.$get(`/cos/order-info/page`, {staffFlag: 0}).then((r) => {
         this.orderList = r.data.data.records
       })
     },

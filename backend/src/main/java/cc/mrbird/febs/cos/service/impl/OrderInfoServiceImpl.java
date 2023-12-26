@@ -119,7 +119,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             return false;
         }
 
-        StaffInfo staffInfo = staffInfoService.getById(staffId);
+        StaffInfo staffInfo = staffInfoService.getOne(Wrappers.<StaffInfo>lambdaQuery().eq(StaffInfo::getUserId, staffId));
         if (staffInfo == null) {
             // 可以记录日志或返回错误信息
             return false;
@@ -134,7 +134,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             mailService.sendHtmlMail(userInfo.getMail(), DateUtil.formatDate(new Date()) + "订单接单", emailContent);
         }
 
-        return this.update(Wrappers.<OrderInfo>lambdaUpdate().set(OrderInfo::getStaffIds, staffId).set(OrderInfo::getStatus, 2).eq(OrderInfo::getId, orderId));
+        return this.update(Wrappers.<OrderInfo>lambdaUpdate().set(OrderInfo::getStaffIds, staffInfo.getId()).set(OrderInfo::getStatus, 2).eq(OrderInfo::getId, orderId));
     }
 
     /**
