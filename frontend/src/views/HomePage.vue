@@ -37,7 +37,7 @@
                 <head-info title="总订单数" :content="titleAdminData.totalNum" :center="false"/>
               </a-col>
             </a-row>
-            <a-row class="more-info" v-if="user.roleId == 75">
+            <a-row class="more-info" v-if="user.roleId == 76">
               <a-col :span="4"></a-col>
               <a-col :span="4"></a-col>
               <a-col :span="4"></a-col>

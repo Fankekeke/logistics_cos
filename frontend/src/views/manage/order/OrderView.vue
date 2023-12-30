@@ -64,6 +64,48 @@
         </a-col>
       </a-row>
       <br/>
+      <a-row style="padding-left: 24px;padding-right: 24px;">
+        <a-col :span="6"><b>物品类型：</b>
+          <span v-if="orderInfo.goodsType == 1">文件</span>
+          <span v-if="orderInfo.goodsType == 2">食品</span>
+          <span v-if="orderInfo.goodsType == 3">蛋糕</span>
+          <span v-if="orderInfo.goodsType == 4">数码</span>
+          <span v-if="orderInfo.goodsType == 5">证件</span>
+          <span v-if="orderInfo.goodsType == 6">药品</span>
+          <span v-if="orderInfo.goodsType == 7">海鲜</span>
+          <span v-if="orderInfo.goodsType == 8">鲜花</span>
+          <span v-if="orderInfo.goodsType == 9">服饰</span>
+          <span v-if="orderInfo.goodsType == 10">其他</span>
+        </a-col>
+        <a-col :span="6"><b>物品重量：</b>
+          {{ orderInfo.weight ? orderInfo.weight : '- -' }}KG
+        </a-col>
+        <a-col :span="6"><b>物品高度：</b>
+          {{ orderInfo.height ? orderInfo.height : '- -' }}厘米
+        </a-col>
+        <a-col :span="6"><b>物品宽度：</b>
+          {{ orderInfo.width ? orderInfo.width : '- -' }}厘米
+        </a-col>
+      </a-row>
+      <br/>
+      <a-row style="padding-left: 24px;padding-right: 24px;">
+        <a-col style="margin-bottom: 15px"><span style="font-size: 15px;font-weight: 650;color: #000c17">图册</span></a-col>
+        <a-col :span="24">
+          <a-upload
+            name="avatar"
+            action="http://127.0.0.1:9527/file/fileUpload/"
+            list-type="picture-card"
+            :file-list="fileList"
+            @preview="handlePreview"
+            @change="picHandleChange"
+          >
+          </a-upload>
+          <a-modal :visible="previewVisible" :footer="null" @cancel="handleCancel">
+            <img alt="example" style="width: 100%" :src="previewImage" />
+          </a-modal>
+        </a-col>
+      </a-row>
+      <br/>
     </div>
     <br/>
     <div style="font-size: 13px;font-family: SimHei" v-if="startAddressInfo !== null">

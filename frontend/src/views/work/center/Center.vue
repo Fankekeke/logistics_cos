@@ -1,7 +1,7 @@
 <template>
   <div style="background:#ECECEC; padding:30px;width: 100%">
     <a-row :gutter="20">
-      <div style="text-align: center">
+      <div style="text-align: center" v-if="orderList.length === 0">
         <a-icon type="folder-open" theme="twoTone" style="font-size: 80px"/>
         <p style="font-size: 25px">暂无订单</p>
       </div>
