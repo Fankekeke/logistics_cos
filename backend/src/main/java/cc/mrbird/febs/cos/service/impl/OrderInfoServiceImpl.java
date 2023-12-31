@@ -84,6 +84,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         double distance = LocationUtils.getDistance(startAddressInfo.getLongitude().doubleValue(), startAddressInfo.getLatitude().doubleValue(), endAddressInfo.getLongitude().doubleValue(), endAddressInfo.getLatitude().doubleValue());
         orderInfo.setKilometre(NumberUtil.round(NumberUtil.div(new BigDecimal(distance), 1000), 2));
 
+        // 基础价格30米
+        orderInfo.setOrderPrice(new BigDecimal(30));
         // 每公里两米
         orderInfo.setDistributionPrice(NumberUtil.mul(orderInfo.getKilometre(), 5));
         orderInfo.setOrderPrice(NumberUtil.add(orderInfo.getOrderPrice(), orderInfo.getDistributionPrice()));
@@ -255,7 +257,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         staffIncome.setCreateDate(DateUtil.formatDateTime(new Date()));
 
         // 订单价格
-        staffIncome.setIncome(NumberUtil.mul(order.getOrderPrice(), 0.8));
+        staffIncome.setIncome(NumberUtil.mul(new BigDecimal(30), 0.8));
         staffIncome.setDeliveryPrice(NumberUtil.mul(order.getDistributionPrice(), 0.8));
         staffIncome.setTotalPrice(NumberUtil.add(staffIncome.getIncome(), staffIncome.getDeliveryPrice()));
         staffIncomeService.save(staffIncome);

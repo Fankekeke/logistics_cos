@@ -6,6 +6,8 @@ import cc.mrbird.febs.cos.entity.OrderInfo;
 import cc.mrbird.febs.cos.entity.StaffInfo;
 import cc.mrbird.febs.cos.service.IOrderInfoService;
 import cc.mrbird.febs.cos.service.IStaffInfoService;
+import cc.mrbird.febs.cos.service.IUserInfoService;
+import cc.mrbird.febs.system.service.UserService;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -29,6 +31,8 @@ public class StaffInfoController {
     private final IStaffInfoService staffInfoService;
 
     private final IOrderInfoService orderInfoService;
+
+    private final UserService userInfoService;
 
     /**
      * 分页获取员工信息
@@ -111,10 +115,11 @@ public class StaffInfoController {
      * @return 结果
      */
     @PostMapping
-    public R save(StaffInfo staffInfo) {
+    public R save(StaffInfo staffInfo) throws Exception {
         staffInfo.setCreateDate(DateUtil.formatDateTime(new Date()));
         staffInfo.setCode("STF-" + System.currentTimeMillis());
-        return R.ok(staffInfoService.save(staffInfo));
+        userInfoService.registMerchant(staffInfo.getCode(), "1234qwer", staffInfo);
+        return R.ok(true);
     }
 
     /**

@@ -323,7 +323,7 @@ export default {
       this.orderEvaluateView.visiable = true
     },
     orderComplete (row) {
-      this.$get(`/cos/order-info/audit`, {
+      this.$get(`/cos/order-info/auditOrderFinish`, {
         'orderCode': row.code,
         'status': 3
       }).then((r) => {

@@ -32,6 +32,9 @@
         <if test="staffIncome.orderName != null and staffIncome.orderName != ''">
             AND oi.order_name LIKE CONCAT('%',#{staffIncome.orderName},'%')
         </if>
+        <if test="staffIncome.staffId != null and staffIncome.staffId != ''">
+            AND si.user_id = #{staffIncome.staffId}
+        </if>
         order by stin.create_date desc
     </select>
 </mapper>

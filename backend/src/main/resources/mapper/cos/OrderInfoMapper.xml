@@ -33,11 +33,13 @@
         oi.integral,
         ui.name as userName,
         ui.images as userImages,
+        ei.id as evaluateId,
         ui.phone
         from
         order_info oi
         left join user_info ui on (ui.id = oi.user_id)
         left join staff_info si on (si.id = oi.staff_ids)
+        left join evaluate_info ei on (ei.order_id = oi.id)
         where 1 = 1
         <if test="orderInfo.code != null and orderInfo.code != ''">
             AND di.code LIKE CONCAT('%',#{orderInfo.code},'%')

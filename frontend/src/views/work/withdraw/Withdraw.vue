@@ -322,6 +322,7 @@ export default {
       if (params.status === undefined) {
         delete params.status
       }
+      params.staffId = this.currentUser.userId
       this.$get('/cos/withdraw-info/page', {
         ...params
       }).then((r) => {

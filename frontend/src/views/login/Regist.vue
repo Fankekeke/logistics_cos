@@ -2,17 +2,6 @@
   <a-card :bordered="false" hoverable style="margin-top:  30px;background-color: #f9f9f9">
     <div class="user-layout-register">
       <a-form ref="formRegister" :autoFormCreate="(form)=>{this.form = form}" id="formRegister">
-        <a-divider orientation="left"><span style="font-size: 12px">账户注册</span></a-divider>
-        <a-form-item>
-          <a-radio-group default-value="1" v-model="registType" button-style="solid">
-            <a-radio-button value="2">
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;商家&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            </a-radio-button>
-            <a-radio-button value="3">
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;用户&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            </a-radio-button>
-          </a-radio-group>
-        </a-form-item>
         <a-form-item
           fieldDecoratorId="clientName"
           :fieldDecoratorOptions="{rules: [{ required: true, message: '请输入名称' }]}">

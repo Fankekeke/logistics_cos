@@ -67,4 +67,7 @@ public class EvaluateInfo implements Serializable {
 
     @TableField(exist = false)
     private String merchantName;
+
+    @TableField(exist = false)
+    private Integer staffId;
 }

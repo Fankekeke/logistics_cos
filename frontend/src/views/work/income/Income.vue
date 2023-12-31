@@ -357,6 +357,7 @@ export default {
       if (params.type === undefined) {
         delete params.type
       }
+      params.staffId = this.currentUser.userId
       this.$get('/cos/staff-income/page', {
         ...params
       }).then((r) => {

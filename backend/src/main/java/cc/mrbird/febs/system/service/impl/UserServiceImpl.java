@@ -5,7 +5,9 @@ import cc.mrbird.febs.common.domain.QueryRequest;
 import cc.mrbird.febs.common.service.CacheService;
 import cc.mrbird.febs.common.utils.SortUtil;
 import cc.mrbird.febs.common.utils.MD5Util;
+import cc.mrbird.febs.cos.entity.StaffInfo;
 import cc.mrbird.febs.cos.entity.UserInfo;
+import cc.mrbird.febs.cos.service.IStaffInfoService;
 import cc.mrbird.febs.cos.service.IUserInfoService;
 import cc.mrbird.febs.system.dao.UserMapper;
 import cc.mrbird.febs.system.dao.UserRoleMapper;
@@ -48,6 +50,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private UserManager userManager;
     @Autowired
     private IUserInfoService userInfoService;
+    @Autowired
+    private IStaffInfoService staffInfoService;
 
 
     @Override
@@ -207,7 +211,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         UserRole ur = new UserRole();
         ur.setUserId(user.getUserId());
-        ur.setRoleId(76L); // 注册用户角色 ID
+        ur.setRoleId(75L); // 注册用户角色 ID
         this.userRoleMapper.insert(ur);
 
         // 添加用户信息
@@ -225,14 +229,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
-     * 注册商家
+     * 注册员工
      *
      * @param username 用户名
      * @param password 密码
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void registMerchant(String username, String password, String name) throws Exception {
+    public void registMerchant(String username, String password, StaffInfo staffInfo) throws Exception {
         User user = new User();
         user.setPassword(MD5Util.encrypt(username, password));
         user.setUsername(username);
@@ -240,12 +244,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setStatus(User.STATUS_VALID);
         user.setSsex(User.SEX_UNKNOW);
         user.setAvatar(User.DEFAULT_AVATAR);
-        user.setDescription("注册商家");
+        user.setDescription("注册员工");
         this.save(user);
+
+        staffInfo.setUserId(user.getUserId());
+        staffInfoService.save(staffInfo);
 
         UserRole ur = new UserRole();
         ur.setUserId(user.getUserId());
-        ur.setRoleId(75L); // 注册用户角色 ID
+        ur.setRoleId(76L); // 注册用户角色 ID
         this.userRoleMapper.insert(ur);
 
         // 创建用户默认的个性化配置
