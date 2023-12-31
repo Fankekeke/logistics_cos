@@ -41,7 +41,7 @@
               </div>
               <div style="margin-top: 6px">
                 收益：
-                <span style="color: red">{{item.afterOrderPrice * 0.8}}元</span>
+                <span style="color: red">{{(item.afterOrderPrice * 0.8).toFixed(2)}}元</span>
               </div>
             </div>
             <a-avatar

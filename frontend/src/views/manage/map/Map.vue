@@ -137,38 +137,38 @@
                   <a-row style="padding-left: 24px;padding-right: 24px;">
                     <a-col style="margin-bottom: 15px"><span style="font-size: 14px;font-weight: 650;color: #000c17">优惠信息</span></a-col>
                     <a-col :span="8"><b>优惠券编号：</b>
-                      {{ discountData.code }}
+                      {{ discountInfo.code }}
                     </a-col>
                     <a-col :span="8"><b>优惠券名称：</b>
-                      {{ discountData.couponName ? discountData.couponName : '- -' }}
+                      {{ discountInfo.couponName ? discountInfo.couponName : '- -' }}
                     </a-col>
                     <a-col :span="8"><b>优惠券类型：</b>
-                      <span v-if="discountData.type == 1">满减</span>
-                      <span v-if="discountData.type == 2">折扣</span>
+                      <span v-if="discountInfo.type == 1">满减</span>
+                      <span v-if="discountInfo.type == 2">折扣</span>
                     </a-col>
                     <a-col :span="8"><b>发放时间：</b>
-                      {{ discountData.createDate }}
+                      {{ discountInfo.createDate }}
                     </a-col>
                   </a-row>
                   <br/>
-                  <a-row style="padding-left: 24px;padding-right: 24px;" v-if="discountData.type == 1">
+                  <a-row style="padding-left: 24px;padding-right: 24px;" v-if="discountInfo.type == 1">
                     <a-col :span="8"><b>满减金额：</b>
-                      {{ discountData.discountPrice }} 元
+                      {{ discountInfo.discountPrice }} 元
                     </a-col>
                     <a-col :span="8"><b>门槛金额：</b>
-                      {{ discountData.threshold }} 元
+                      {{ discountInfo.threshold }} 元
                     </a-col>
                   </a-row>
                   <br/>
-                  <a-row style="padding-left: 24px;padding-right: 24px;" v-if="discountData.type == 2">
+                  <a-row style="padding-left: 24px;padding-right: 24px;" v-if="discountInfo.type == 2">
                     <a-col :span="8"><b>折扣：</b>
-                      {{ discountData.rebate }} 折
+                      {{ discountInfo.rebate }} 折
                     </a-col>
                   </a-row>
                   <br/>
                   <a-row style="padding-left: 24px;padding-right: 24px;">
                     <a-col :span="24"><b>备注：</b>
-                      {{ discountData.content }}
+                      {{ discountInfo.content }}
                     </a-col>
                   </a-row>
                 </div>

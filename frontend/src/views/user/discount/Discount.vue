@@ -196,9 +196,9 @@ export default {
         dataIndex: 'type',
         customRender: (text, row, index) => {
           switch (text) {
-            case '0':
-              return <a-tag>满减</a-tag>
             case '1':
+              return <a-tag>满减</a-tag>
+            case '2':
               return <a-tag>折扣</a-tag>
             default:
               return '- -'
@@ -345,6 +345,12 @@ export default {
         // 如果分页信息为空，则设置为默认值
         params.size = this.pagination.defaultPageSize
         params.current = this.pagination.defaultCurrent
+      }
+      if (params.status === undefined) {
+        delete params.status
+      }
+      if (params.type === undefined) {
+        delete params.type
       }
       params.userId = this.currentUser.userId
       this.$get('/cos/discount-info/page', {

@@ -1,29 +1,43 @@
 <template>
   <div style="background:#ECECEC; padding:30px;margin-top: 30px;margin-bottom: 30px">
-    <div style="height: 850px;">
-      <div style="height: 750px;padding: 0 50px">
+    <div style="height: 950px;">
+      <div style="height: 800px;padding: 0 50px">
         <div style="font-size: 35px;font-weight: 500;color: white;font-family: SimHei">Hello</div>
         <div style="font-size: 22px;font-weight: 500;color: white;font-family: SimHei">配送下单</div>
-        <div style="height: 680px;margin-top: 50px">
+        <div style="height: 730px;margin-top: 30px">
           <a-card :bordered="false" hoverable style="height: 100%;box-shadow: 3px 3px 3px rgba(0, 0, 0, .2);color:#fff;padding-bottom: 30px">
-            <a-row style="padding: 50px;margin: 0 auto">
+            <a-row style="padding: 0 50px;margin: 0 auto">
               <a-col :span="24">
                 <a-row>
-                  <a-col :span="8">
-                    <a-input v-model="key" placeholder="配送地址"/>
-                  </a-col>
-                  <a-col :span="8" :offset="1">
-                    <a-input v-model="key" placeholder="收货地址"/>
-                  </a-col>
-                  <a-col :span="24"></a-col>
-                  <a-col :span="24" style="font-size: 15px;font-family: SimHei;">
+                  <a-col :span="24" style="font-size: 15px;font-family: SimHei;" v-if="nextFlag == 1">
                     <div style="margin-top: 30px">
                       <a-form :form="form" layout="vertical">
                         <a-row :gutter="20">
+                          <a-col :span="8">
+                            <a-form-item label='配送地址' v-bind="formItemLayout">
+                              <a-select style="width: 100%" v-decorator="[
+                                'startAddressId',
+                                { rules: [{ required: true, message: '请输入配送地址!' }] }
+                                ]">
+                                <a-select-option v-for="(item, index) in addressList" :value="item.id" :key="index">{{ item.address }}</a-select-option>
+                              </a-select>
+                            </a-form-item>
+                          </a-col>
+                          <a-col :span="8" :offset="1">
+                            <a-form-item label='收货地址' v-bind="formItemLayout">
+                              <a-select style="width: 100%" v-decorator="[
+                                'endAddressId',
+                                { rules: [{ required: true, message: '请输入收货地址!' }] }
+                                ]">
+                                <a-select-option v-for="(item, index) in addressList" :value="item.id" :key="index">{{ item.address }}</a-select-option>
+                              </a-select>
+                            </a-form-item>
+                          </a-col>
+                          <a-col :span="24" style="font-size: 15px;font-family: SimHei;"></a-col>
                           <a-col :span="5">
                             <a-form-item label='订单名称' v-bind="formItemLayout">
                               <a-input v-decorator="[
-                                'contactPerson',
+                                'orderName',
                                 { rules: [{ required: true, message: '请输入订单名称!' }] }
                                 ]"/>
                             </a-form-item>
@@ -74,7 +88,7 @@
                           <a-col :span="24">
                             <a-form-item label='备注' v-bind="formItemLayout">
                               <a-textarea :rows="4" v-decorator="[
-                              'content',
+                              'remark',
                                { rules: [{ required: true, message: '请输入备注!' }] }
                               ]"/>
                             </a-form-item>
@@ -108,6 +122,31 @@
                       </a-form>
                     </div>
                   </a-col>
+                  <a-col :span="24" style="font-size: 15px;font-family: SimHei;color: #4a4a48" v-if="nextFlag == 2">
+                    <a-row style="padding-left: 20px;padding-right: 20px;margin-top: 30px;" v-if="orderInfo.discountInfos.length !== 0">
+                      <a-col style="margin-bottom: 15px"><span style="font-size: 13px;font-weight: 650;color: #000c17">选择优惠券</span></a-col>
+                      <a-col :span="8">
+                        <a-select v-model="discountId" style="width: 100%" @change="handleChange" allowClear>
+                          <a-select-option v-for="(item, index) in orderInfo.discountInfos" :value="item.id" :key="index">{{ item.couponName }}</a-select-option>
+                        </a-select>
+                      </a-col>
+                    </a-row>
+                    <div style="padding-left: 20px;margin-top: 25px;text-align: left;padding-left: 30px"><span>合计</span>
+                      <span style="color: red">{{ orderInfo.orderPrice }} 元</span>
+                    </div>
+                    <div style="padding-left: 20px;margin-top: 5px;text-align: left;padding-left: 30px"><span>配送费用</span>
+                      {{ orderInfo.kilometre }} 千米  <span style="color: red">{{ orderInfo.distributionPrice }} 元</span>
+                    </div>
+                    <div style="text-align: center;margin-top: 50px">
+                      <a-icon type="wallet" theme="twoTone" style="font-size: 80px;"/>
+                      <div style="font-size: 25px;font-family: SimHei">折后价格 <span style="font-size: 14px">{{ orderInfo.afterOrderPrice }} 元</span></div>
+                      <br/>
+                      <br/>
+                      <a-button type="primary" @click="orderPay">
+                        支付
+                      </a-button>
+                    </div>
+                  </a-col>
                 </a-row>
               </a-col>
             </a-row>
@@ -136,7 +175,9 @@ export default {
   components: {Map, VehicleView},
   data () {
     return {
+      nextFlag: 1,
       fileList: [],
+      addressList: [],
       previewVisible: false,
       previewImage: '',
       formItemLayout,
@@ -158,7 +199,9 @@ export default {
         data: null
       },
       startDate: null,
-      endDate: null
+      endDate: null,
+      orderInfo: null,
+      discountId: null
     }
   },
   computed: {
@@ -167,9 +210,51 @@ export default {
     })
   },
   mounted () {
-    this.getWorkStatusList()
+    this.selectAddress()
   },
   methods: {
+    orderPay () {
+      let data = this.orderInfo
+      data.discountId = this.discountId
+      delete data.discountInfos
+      this.$post('/cos/pay/alipay', data).then((r) => {
+        // console.log(r.data.msg)
+        // 添加之前先删除一下，如果单页面，页面不刷新，添加进去的内容会一直保留在页面中，二次调用form表单会出错
+        const divForm = document.getElementsByTagName('div')
+        if (divForm.length) {
+          document.body.removeChild(divForm[0])
+        }
+        const div = document.createElement('div')
+        div.innerHTML = r.data.msg // data就是接口返回的form 表单字符串
+        // console.log(div.innerHTML)
+        document.body.appendChild(div)
+        document.forms[0].setAttribute('target', '_self') // 新开窗口跳转
+        document.forms[0].submit()
+      })
+    },
+    handleChange (value) {
+      let afterOrderPrice = this.orderInfo.orderPrice
+      if (!value) {
+        this.orderInfo.afterOrderPrice = afterOrderPrice
+      } else {
+        this.orderInfo.discountInfos.forEach(e => {
+          if (e.id === value) {
+            if (e.type == 1) {
+              this.orderInfo.afterOrderPrice = afterOrderPrice - e.discountPrice
+            } else {
+              this.orderInfo.afterOrderPrice = afterOrderPrice * e.rebate / 10
+            }
+          }
+        })
+      }
+      // this.discountId = value
+      // console.log(this.discountId)
+    },
+    selectAddress () {
+      this.$get(`/cos/address-info/listByUserId/${this.currentUser.userId}`).then((r) => {
+        this.addressList = r.data.data
+      })
+    },
     handleCancel () {
       this.previewVisible = false
     },
@@ -230,7 +315,28 @@ export default {
       })
     },
     fetch () {
-      this.getWorkStatusList()
+      // 获取图片List
+      let images = []
+      this.fileList.forEach(image => {
+        images.push(image.response)
+      })
+      this.form.validateFields((err, values) => {
+        if (values.startAddressId == values.endAddressId) {
+          this.$message.warn('配送地址与收货地址不能为同一地址')
+          return false
+        }
+        values.images = images.length > 0 ? images.join(',') : null
+        values.userId = this.currentUser.userId
+        if (!err) {
+          this.loading = true
+          this.$post('/cos/order-info/getPriceTotal', {
+            ...values
+          }).then((r) => {
+            this.orderInfo = r.data.data
+            this.nextFlag = 2
+          })
+        }
+      })
     }
   }
 }

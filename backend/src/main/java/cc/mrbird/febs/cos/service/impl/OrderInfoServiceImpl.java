@@ -85,12 +85,19 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         orderInfo.setKilometre(NumberUtil.round(NumberUtil.div(new BigDecimal(distance), 1000), 2));
 
         // 每公里两米
-        orderInfo.setDistributionPrice(NumberUtil.mul(orderInfo.getKilometre(), 2));
+        orderInfo.setDistributionPrice(NumberUtil.mul(orderInfo.getKilometre(), 5));
         orderInfo.setOrderPrice(NumberUtil.add(orderInfo.getOrderPrice(), orderInfo.getDistributionPrice()));
+        orderInfo.setAfterOrderPrice(orderInfo.getOrderPrice());
 
         // 判断是有可用优惠券
         List<DiscountInfo> discountInfoList = discountInfoService.list(Wrappers.<DiscountInfo>lambdaQuery().eq(DiscountInfo::getUserId, userInfo.getId()).eq(DiscountInfo::getStatus, "0"));
         if (CollectionUtil.isNotEmpty(discountInfoList)) {
+            List<DiscountInfo> discount1s = discountInfoList.stream().filter(e -> "2".equals(e.getType())).collect(Collectors.toList());
+            List<DiscountInfo> discount2s = discountInfoList.stream().filter(e -> "1".equals(e.getType()) && orderInfo.getOrderPrice().compareTo(e.getThreshold()) >= 0).collect(Collectors.toList());
+
+            discount1s.addAll(discount2s);
+            orderInfo.setDiscountInfos(discount1s);
+
             boolean discountCheck = (discountInfoList.stream().anyMatch(e -> "2".equals(e.getType())) || discountInfoList.stream().anyMatch(e -> "1".equals(e.getType()) && orderInfo.getOrderPrice().compareTo(e.getThreshold()) >= 0));
             orderInfo.setUseDiscount(discountCheck);
         }
@@ -218,6 +225,10 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         UserInfo userInfo = userInfoService.getOne(Wrappers.<UserInfo>lambdaQuery().eq(UserInfo::getUserId, orderInfo.getUserId()));
 
         orderInfo.setUserId(userInfo.getId());
+
+        if (orderInfo.getDiscountId() != null) {
+            discountInfoService.update(Wrappers.<DiscountInfo>lambdaUpdate().set(DiscountInfo::getStatus, "1").eq(DiscountInfo::getId, orderInfo.getDiscountId()));
+        }
 
         // 添加订单
         orderInfo.setStatus("0");
