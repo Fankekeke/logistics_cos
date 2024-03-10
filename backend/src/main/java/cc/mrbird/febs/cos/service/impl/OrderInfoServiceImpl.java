@@ -102,6 +102,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
             boolean discountCheck = (discountInfoList.stream().anyMatch(e -> "2".equals(e.getType())) || discountInfoList.stream().anyMatch(e -> "1".equals(e.getType()) && orderInfo.getOrderPrice().compareTo(e.getThreshold()) >= 0));
             orderInfo.setUseDiscount(discountCheck);
+        } else {
+            orderInfo.setDiscountInfos(Collections.emptyList());
         }
         return orderInfo;
     }

@@ -232,16 +232,6 @@ export default {
           </a-popover>
         }
       }, {
-        title: '订单价格（元）',
-        dataIndex: 'orderPrice',
-        customRender: (text, row, index) => {
-          if (text !== null) {
-            return text + '元'
-          } else {
-            return '- -'
-          }
-        }
-      }, {
         title: '折后价格（元）',
         dataIndex: 'afterOrderPrice',
         customRender: (text, row, index) => {

@@ -131,7 +131,7 @@ export default {
     audit (status) {
       let data = this.withdrawData
       data.status = status
-      this.$post(`/cos/order-info/auditWithdraw`, status).then((r) => {
+      this.$post(`/cos/order-info/auditWithdraw`, data).then((r) => {
         this.$emit('auditSuccess')
       })
     },
